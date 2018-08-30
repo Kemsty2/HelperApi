@@ -505,7 +505,7 @@ router.post("updatePosition", async(req, res) => {
     const lastLong = req.body.lastLong;
     const lastLat = req.body.lastLat;
 
-    const user = User.findById(_id);
+    const user = await User.findById(_id).exec();
     user.set({lastLat: lastLat});
     user.set({lastLong: lastLong});
 
