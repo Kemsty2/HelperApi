@@ -499,6 +499,23 @@ router.post("/updateDiscussion", async (req, res) => {
   }
 });
 
+router.post("updatePosition", async(req, res) => {
+  try{
+    const _id = req.body._id;
+    const lastLong = req.body.lastLong;
+    const lastLat = req.body.lastLat;
+
+    const user = User.findById(_id);
+    user.set({lastLat: lastLat});
+    user.set({lastLong: lastLong});
+
+    await user.save();
+  }catch (e) {
+    console.error(e);
+    res.status(400).json({result: false, data: null});
+  }
+});
+
 
 
 module.exports = router;
