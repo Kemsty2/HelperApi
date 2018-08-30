@@ -141,11 +141,8 @@ router.post("/InscriptionClient", async function (req, res) {
   let client = new Client(req.body);
 
   try {
-    {
-      client.password
-          ? (client.password = client.encryptPassword(client.password))
-          : null;
-    }
+
+    client.password = client.encryptPassword(client.password);
     await client.save();
     res.json({result: true, data: client});
   } catch (e) {
@@ -167,18 +164,15 @@ router.post("/InscriptionClient", async function (req, res) {
 router.post("/InscriptionPro", async function (req, res) {
   let professionnel = new Professionnel(req.body);
   try {
-    if (professionnel.password) {
-      professionnel.password = professionnel.encryptPassword(
-          professionnel.password
-      );
-    }
+
+    professionnel.password = professionnel.encryptPassword(professionnel.password);
     await professionnel.save();
     res.json({result: true, data: professionnel});
   } catch (e) {
     if (e.name === "MongoError" && e.code == "E11000") {
       res.status(400).send("Name or Email Already Exist");
     } else {
-      res.status(400).send("Error during the process: ");
+      res.status(400).send("Error during the process:" + e.message);
     }
   }
 });
