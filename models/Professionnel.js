@@ -3,7 +3,7 @@ let Schema = mongoose.Schema;
 const User = require('./User');
 
 let professionnelSchema = new Schema({
-  email: {type: String, required: true, unique: true, dropDups: true},
+  email: {type: String, unique: true, dropDups: true},
   siteWeb: String,
   statut: {type: String},
   image: {type: String},
