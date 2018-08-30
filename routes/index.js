@@ -314,19 +314,12 @@ router.post("/NouveauDomaine", async function (req, res) {
 router.post("/RenewToken", async (req, res) => {
   try {
     let user;
-    let userType = req.body.userType;
     let _id = req.body._id;
     let token = req.body.token;
 
-    if (userType === "client") {
-      user = await Client.findById(_id).exec();
-      user.set({token: token});
-      await user.save();
-    } else {
-      user = await Professionnel.findById(_id).exec();
-      user.set({token: token});
-      await user.save();
-    }
+    user = await User.findById(_id).exec();
+    user.set({token: token});
+    await user.save();
   } catch (e) {
     console.error(e.message);
     res.status(400).send("Error during the process: " + e.message);
