@@ -110,10 +110,16 @@ router.post("/SaveDemande", async function (req, res) {
  */
 router.post("/Connexion", async function (req, res) {
   let password = req.body.password;
-  const nom = req.body.nom;
+  let user;
 
   try {
-    let user = await User.findOne({nom: nom}).exec();
+    if(req.body.nom){
+      const nom = req.body.nom;
+      user = await User.findOne({nom: nom}).exec();
+    }else{
+      const numero = req.body.numero;
+      user = await User.findOne({numero: numero}).exec();
+    }
     if(user){
       if(user.validPassword(password)){
         res.json({result: true, data: user});
@@ -169,7 +175,7 @@ router.post("/InscriptionPro", async function (req, res) {
     await professionnel.save();
     res.json({result: true, data: professionnel});
   } catch (e) {
-    if (e.name === "MongoError" && e.code == "E11000") {
+    if (e.name === "MongoError" || e.code == "E11000") {
       res.status(400).send("Name or Email Already Exist");
     } else {
       res.status(400).send("Error during the process:" + e.message);
