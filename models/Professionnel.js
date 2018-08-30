@@ -7,11 +7,11 @@ let professionnelSchema = new Schema({
   siteWeb: String,
   statut: {type: String},
   image: {type: String},
-  isActive: {type: boolean},
+  isActive: {type: Boolean},
   domaine: {type: Schema.Types.ObjectId, ref: 'Domaine'},
   locaux: [{type: Schema.Types.ObjectId, ref: 'Local'}]
 });
 
-const Professionnel = User.discriminator('Client', professionnelSchema,);
+const Professionnel = User.discriminator('Professionnel', professionnelSchema,);
 
 module.exports= (mongoose.model("Professionnel"));
