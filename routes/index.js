@@ -499,7 +499,7 @@ router.post("/updateDiscussion", async (req, res) => {
   }
 });
 
-router.post("updatePosition", async(req, res) => {
+router.post("/updatePosition", async(req, res) => {
   try{
     const _id = req.body._id;
     const lastLong = req.body.lastLong;
