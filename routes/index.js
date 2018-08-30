@@ -33,7 +33,9 @@ Array.prototype.compare = function (array) {
   if (this.length !== array.length) {
     return false;
   }
-  for (var i = 0, l = this.length; i < l; i++) {
+  let i = 0;
+  const l = this.length;
+  for (; i < l; i++) {
     if (this[i] instanceof Array && array[i] instanceof Array) {
       if (!this[i].compare(array[i])) {
         return false;
@@ -111,7 +113,7 @@ router.post("/Connexion", async function (req, res) {
   let password = req.body.password;
 
   try {
-    let client = await Client.findOne({nom: nom}).exec();
+    /*let client = await Client.findOne({nom: nom}).exec();
     if (client) {
       if (client.validPassword(password)) {
         res.json({result: true, userType: "client", data: client});
@@ -142,7 +144,7 @@ router.post("/Connexion", async function (req, res) {
             .status(400)
             .json({result: false, data: null, message: "Account not Found"});
       }
-    }
+    }*/
   } catch (e) {
     console.error(e);
     res

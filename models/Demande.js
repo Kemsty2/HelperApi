@@ -8,7 +8,8 @@ let demandeSchema = new Schema({
   ville:{type: String},
   client: {type:Schema.Types.ObjectId, ref: 'User'},
   domaine: {type:Schema.Types.ObjectId, ref: 'Domaine'},
-  professionnel: {type:Schema.Types.ObjectId, ref: 'Professionnel'}
+  professionnel: {type:Schema.Types.ObjectId, ref: 'Professionnel'},
+  dateAttrib: {type: Number}
 });
 
 module.exports = (mongoose.model("Demande", demandeSchema));
