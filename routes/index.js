@@ -94,6 +94,8 @@ router.get("/ListeDemande", async function (req, res) {
 router.post("/SaveDemande", async function (req, res) {
   let demande = new Demande(req.body);
   try {
+    // incrémente le compteur de demandes du domaine
+    demande.domaine.count++;
     await demande.save();
     res.json({result: true, data: "Votre demande a été enregistré"});
   } catch (e) {
