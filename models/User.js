@@ -4,11 +4,11 @@ const bcrypt = require("bcrypt-nodejs");
 
 const userOptions = {
   discriminatorKey: "itemtype",
-  collection: "items"
+  collection: "Users"
 };
 
 const userSchema = new Schema({
-  nom: {type: String, required: true, unique: true},
+  nom: {type: String, required: true, unique: true, dropDups: true},
   numero: {type: String, required: true},
   password: {type: String, required: true},
   lastLat: {type: Number},

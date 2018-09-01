@@ -33,7 +33,9 @@ Array.prototype.compare = function (array) {
   if (this.length !== array.length) {
     return false;
   }
-  for (var i = 0, l = this.length; i < l; i++) {
+  let i = 0;
+  const l = this.length;
+  for (; i < l; i++) {
     if (this[i] instanceof Array && array[i] instanceof Array) {
       if (!this[i].compare(array[i])) {
         return false;
@@ -107,47 +109,31 @@ router.post("/SaveDemande", async function (req, res) {
  * @status: in_testing
  */
 router.post("/Connexion", async function (req, res) {
-  let email = req.body.nom;
   let password = req.body.password;
+  let user;
 
   try {
-    let client = await Client.findOne({nom: nom}).exec();
-    if (client) {
-      if (client.validPassword(password)) {
-        res.json({result: true, userType: "client", data: client});
-      } else {
-        res
-            .status(400)
-            .json({result: false, data: null, message: "Incorrect Password"});
+    if(req.body.nom){
+      const nom = req.body.nom;
+      user = await User.findOne({nom: nom}).exec();
+    }else{
+      const numero = req.body.numero;
+      user = await User.findOne({numero: numero}).exec();
+    }
+    if(user){
+      if(user.validPassword(password)){
+        res.json({result: true, data: user});
+      }else{
+        res.status(400).json({result: false, data: null, message: "Incorrect Password"});
       }
-    } else {
-      let professionnel = await Professionnel.findOne({nom: nom})
-          .populate("domaine")
-          .populate("locaux")
-          .exec();
-      if (professionnel) {
-        if (professionnel.validPassword(password)) {
-          return res.json({
-            result: true,
-            userType: "professionnel",
-            data: professionnel
-          });
-        } else {
-          res
-              .status(400)
-              .json({result: false, data: null, message: "Incorrect Password"});
-        }
-      } else {
-        res
-            .status(400)
-            .json({result: false, data: null, message: "Account not Found"});
-      }
+    }else{
+      res.status(400).json({result: false, data: null, message: "Account not Found"});
     }
   } catch (e) {
     console.error(e);
     res
         .status(400)
-        .json({result: false, data: null, message: "Problem during process"});
+        .json({result: false, data: null, message: "Problem during process" + e});
   }
 });
 
@@ -161,30 +147,16 @@ router.post("/InscriptionClient", async function (req, res) {
   let client = new Client(req.body);
 
   try {
-    {
-      client.password
-          ? (client.password = client.encryptPassword(client.password))
-          : null;
-    }
-    let pro = await Professionnel.findOne({nom: client.nom}).exec();
-    if (pro) {
-      res
-          .status(404)
-          .json({
-            result: false,
-            data:
-                "Professionnel already use that name, Professionnel can't be a Client"
-          });
-    } else {
-      await client.save();
-      res.json({result: true, data: client});
-    }
+
+    client.password = client.encryptPassword(client.password);
+    await client.save();
+    res.json({result: true, data: client});
   } catch (e) {
     console.error(e);
-    if (e.name === "MongoError" && e.code === 11000) {
-      res.status(400).send("Email Already Exist");
+    if (e.name === "MongoError" && e.code == "E11000") {
+      res.status(400).send("Name Already Exist");
     } else {
-      res.status(400).send("Error during the process: " + e.message);
+      res.status(400).send("Error during the process:");
     }
   }
 });
@@ -198,27 +170,16 @@ router.post("/InscriptionClient", async function (req, res) {
 router.post("/InscriptionPro", async function (req, res) {
   let professionnel = new Professionnel(req.body);
   try {
-    if (professionnel.password) {
-      professionnel.password = professionnel.encryptPassword(
-          professionnel.password
-      );
-    }
 
-    let clientOld = await Client.findOne({nom: professionnel.email}).exec();
-    if (clientOld) {
-      res
-          .status(404)
-          .json({
-            result: false,
-            data: "Client always use that nom, Client can't be a professionnel"
-          });
-    } else {
-      await professionnel.save();
-      res.json({result: true, data: professionnel});
-    }
+    professionnel.password = professionnel.encryptPassword(professionnel.password);
+    await professionnel.save();
+    res.json({result: true, data: professionnel});
   } catch (e) {
-    console.error(e);
-    res.status(400).send("Error during the process: " + e);
+    if (e.name === "MongoError" || e.code == "E11000") {
+      res.status(400).send("Name or Email Already Exist");
+    } else {
+      res.status(400).send("Error during the process:" + e.message);
+    }
   }
 });
 
@@ -247,7 +208,7 @@ router.post("/EditerPro", async function (req, res) {
     if (req.body.statut) pro.statut = req.body.statut;
     if (req.body.domaine) pro.domaine = req.body.domaine;
     if (req.body.locaux) pro.locaux = req.body.locaux;
-    // todo : manage change of image
+    // Todo : manage change of image
 
     await pro.save();
     proToDisplay = await Professionnel.findById(pro._id)
@@ -259,7 +220,7 @@ router.post("/EditerPro", async function (req, res) {
     console.error(e);
     res
         .status(400)
-        .json({result: false, data: "Error during the process: " + e.message});
+        .json({result: false, data: "Error during the process: "});
   }
 });
 
@@ -353,19 +314,12 @@ router.post("/NouveauDomaine", async function (req, res) {
 router.post("/RenewToken", async (req, res) => {
   try {
     let user;
-    let userType = req.body.userType;
     let _id = req.body._id;
     let token = req.body.token;
 
-    if (userType === "client") {
-      user = await Client.findById(_id).exec();
-      user.set({token: token});
-      await user.save();
-    } else {
-      user = await Professionnel.findById(_id).exec();
-      user.set({token: token});
-      await user.save();
-    }
+    user = await User.findById(_id).exec();
+    user.set({token: token});
+    await user.save();
   } catch (e) {
     console.error(e.message);
     res.status(400).send("Error during the process: " + e.message);
@@ -540,6 +494,23 @@ router.post("/updateDiscussion", async (req, res) => {
     await disc.save();
     res.json({result: true, data: disc});
   } catch (e) {
+    console.error(e);
+    res.status(400).json({result: false, data: null});
+  }
+});
+
+router.post("/updatePosition", async(req, res) => {
+  try{
+    const _id = req.body._id;
+    const lastLong = req.body.lastLong;
+    const lastLat = req.body.lastLat;
+
+    const user = await User.findById(_id).exec();
+    user.set({lastLat: lastLat});
+    user.set({lastLong: lastLong});
+
+    await user.save();
+  }catch (e) {
     console.error(e);
     res.status(400).json({result: false, data: null});
   }
