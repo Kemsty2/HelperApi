@@ -333,7 +333,7 @@ router.post("/NouveauDomaine", async function (req, res) {
     }
     await domaine.save();
     {
-      req.body._id ? res.json({
+      !req.body._id ? res.json({
         result: true,
         data: "Votre Domaine a été créé avec succès"
       }) : res.json({result: true, data: "Votre domaine a été modifié avec succès"})
