@@ -438,7 +438,7 @@ router.post("/DeleteDomaines", async (req, res) => {
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
  */
-router.post("/newDiscussion", async (req, res) => {
+router.post("/NewDiscussion", async (req, res) => {
   let disc = new Discussion(req.body);
   try {
     await disc.save();
@@ -485,7 +485,7 @@ router.get("/FindDiscussion/:idUser", async (req, res) => {
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
  */
-router.post("/updateDiscussion", async (req, res) => {
+router.post("/UpdateDiscussion", async (req, res) => {
   try {
     let disc = await Discussion.findById(req.body._id)
         .populate("exp")
@@ -501,7 +501,7 @@ router.post("/updateDiscussion", async (req, res) => {
   }
 });
 
-router.post("/updatePosition", async(req, res) => {
+router.post("/UpdatePosition", async(req, res) => {
   try{
     const _id = req.body._id;
     const lastLong = req.body.lastLong;
