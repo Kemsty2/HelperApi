@@ -171,6 +171,7 @@ router.post("/InscriptionClient", async function (req, res) {
  */
 router.post("/InscriptionPro", async function (req, res) {
   let professionnel = new Professionnel(req.body);
+  professionnel.isActive = false;
   try {
 
     professionnel.password = professionnel.encryptPassword(professionnel.password);
