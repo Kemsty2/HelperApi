@@ -94,6 +94,8 @@ router.get("/ListeDemande", async function (req, res) {
 router.post("/SaveDemande", async function (req, res) {
   let demande = new Demande(req.body);
   try {
+    // incrémente le compteur de demandes du domaine
+    demande.domaine.count++;
     await demande.save();
     res.json({result: true, data: "Votre demande a été enregistré"});
   } catch (e) {
@@ -169,6 +171,7 @@ router.post("/InscriptionClient", async function (req, res) {
  */
 router.post("/InscriptionPro", async function (req, res) {
   let professionnel = new Professionnel(req.body);
+  professionnel.isActive = false;
   try {
 
     professionnel.password = professionnel.encryptPassword(professionnel.password);
@@ -294,7 +297,7 @@ router.post("/NouveauDomaine", async function (req, res) {
     }
     await domaine.save();
     {
-      req.body._id ? res.json({
+      !req.body._id ? res.json({
         result: true,
         data: "Votre Domaine a été créé avec succès"
       }) : res.json({result: true, data: "Votre domaine a été modifié avec succès"})
@@ -436,7 +439,7 @@ router.post("/DeleteDomaines", async (req, res) => {
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
  */
-router.post("/newDiscussion", async (req, res) => {
+router.post("/NewDiscussion", async (req, res) => {
   let disc = new Discussion(req.body);
   try {
     await disc.save();
@@ -483,7 +486,7 @@ router.get("/FindDiscussion/:idUser", async (req, res) => {
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
  */
-router.post("/updateDiscussion", async (req, res) => {
+router.post("/UpdateDiscussion", async (req, res) => {
   try {
     let disc = await Discussion.findById(req.body._id)
         .populate("exp")
@@ -499,7 +502,7 @@ router.post("/updateDiscussion", async (req, res) => {
   }
 });
 
-router.post("/updatePosition", async(req, res) => {
+router.post("/UpdatePosition", async(req, res) => {
   try{
     const _id = req.body._id;
     const lastLong = req.body.lastLong;
