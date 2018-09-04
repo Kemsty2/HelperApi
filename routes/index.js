@@ -220,7 +220,7 @@ router.post("/EditerPro", async function (req, res) {
     console.error(e);
     res
         .status(400)
-        .json({result: false, data: "Error during the process: "});
+        .json({result: false, data:null, message: "Error during the process: "});
   }
 });
 
@@ -254,7 +254,7 @@ router.post("/NouveauDomaine", async function (req, res) {
   try {
     let domaine;
     if (req.body._id) {
-      domaine = Domaine.findById(req.body._id).exec();
+      domaine = await Domaine.findById(req.body._id).exec();
       if (req.body.domaine) domaine.domaine = req.body.domaine;
       if (req.body.description) domaine.description = req.body.description;
       if (req.body.count) domaine.count = req.body.count;
