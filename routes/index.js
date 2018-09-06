@@ -236,7 +236,7 @@ router.post("/EditerPro", async function (req, res) {
  */
 router.get("/ListePro", async function (req, res) {
   try {
-    let professionnels = await Professionnel.find({})
+    const professionnels = await Professionnel.find({})
         .populate("domaine")
         .populate("locaux")
         .exec();
@@ -518,6 +518,27 @@ router.post("/UpdatePosition", async(req, res) => {
     res.status(400).json({result: false, data: null});
   }
 });
+
+router.post("/NouveauLocal", async(req, res) => {
+  let newLocal = new Local(req.body);
+  try {
+    await newLocal.save();
+    res.json({result: true, data: newLocal});
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({result: false, data: null});
+  }
+});
+
+router.post("/ListeLocaux", async(req, res) => {
+  try {
+    let locaux = await Local.find({}).exec();
+    res.json(locaux);
+  } catch (err) {
+    console.error(err);
+    res.status(400).send("Error While Retrieving Locaux: " + err.message);
+  }
+})
 
 
 
