@@ -210,7 +210,14 @@ router.post("/EditerPro", async function (req, res) {
     if (req.body.siteWeb) pro.siteWeb = req.body.siteWeb;
     if (req.body.statut) pro.statut = req.body.statut;
     if (req.body.domaine) pro.domaine = req.body.domaine;
-    if (req.body.locaux) pro.locaux = req.body.locaux;
+    if (req.body.locaux){
+        await Promise.all(req.body.locaux.map(async local => {
+          let proLocal = await Professionnel.findOrCreate({id: local.id});
+          proLocal.longitude = local.longitude;
+          proLocal.latitude = local.latitude;
+          await proLocal.save();
+        }));
+    }
     // Todo : manage change of image
 
     await pro.save();
@@ -236,7 +243,7 @@ router.post("/EditerPro", async function (req, res) {
  */
 router.get("/ListePro", async function (req, res) {
   try {
-    let professionnels = await Professionnel.find({})
+    const professionnels = await Professionnel.find({})
         .populate("domaine")
         .populate("locaux")
         .exec();
@@ -518,6 +525,27 @@ router.post("/UpdatePosition", async(req, res) => {
     res.status(400).json({result: false, data: null});
   }
 });
+
+router.post("/NouveauLocal", async(req, res) => {
+  let newLocal = new Local(req.body);
+  try {
+    await newLocal.save();
+    res.json({result: true, data: newLocal});
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({result: false, data: null});
+  }
+});
+
+router.post("/ListeLocaux", async(req, res) => {
+  try {
+    let locaux = await Local.find({}).exec();
+    res.json(locaux);
+  } catch (err) {
+    console.error(err);
+    res.status(400).send("Error While Retrieving Locaux: " + err.message);
+  }
+})
 
 
 

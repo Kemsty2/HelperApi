@@ -2,6 +2,7 @@
   <dictionary name="kemsty">
     <words>
       <w>attrib</w>
+      <w>bcrypt</w>
       <w>delai</w>
       <w>demande</w>
       <w>demandes</w>
@@ -10,6 +11,7 @@
       <w>domaine</w>
       <w>domaines</w>
       <w>itemtype</w>
+      <w>liste</w>
       <w>locaux</w>
       <w>mkdirp</w>
       <w>mongo</w>

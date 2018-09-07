@@ -2,6 +2,7 @@ let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 const User = require('./User');
 
+
 let professionnelSchema = new Schema({
   email: {type: String},
   siteWeb: String,
@@ -11,6 +12,8 @@ let professionnelSchema = new Schema({
   domaine: {type: Schema.Types.ObjectId, ref: 'Domaine'},
   locaux: [{type: Schema.Types.ObjectId, ref: 'Local'}]
 });
+
+
 
 const Professionnel = User.discriminator('Professionnel', professionnelSchema,);
 
