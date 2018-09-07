@@ -212,13 +212,44 @@ router.post("/EditerPro", async function (req, res) {
     if (req.body.domaine) pro.domaine = req.body.domaine;
     if (req.body.locaux){
         await Promise.all(req.body.locaux.map(async local => {
-          let proLocal = await Professionnel.findOrCreate({id: local.id});
+          let proLocal = await Professionnel.findOrCreate({_id: local._id});
           proLocal.longitude = local.longitude;
           proLocal.latitude = local.latitude;
           await proLocal.save();
         }));
     }
     // Todo : manage change of image
+    if (req.body.image) {
+      console.log("here");
+      let name;
+      let nameToSave;
+      let imagePath = path.join(
+          "__dirname",
+          "..",
+          "public",
+          "images",
+          "upload"
+      );
+      let base64Data = req.body.image.replace(/^data:image\/jpeg;base64,/, "");
+
+      base64Data = base64Data.replace(/^data:image\/jpg;base64,/, "");
+      nameToSave = "/images/upload" + "/" + pro._id + "_img.jpg";
+      name = "/" + pro._id + "_img.jpg";
+
+      if (base64Data.startsWith("data:image/png;base64")) {
+        base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
+        nameToSave = "/images/upload" + "/" + pro._id + "_img.png";
+        name = "/" + pro._id + "_img.png";
+      }
+      console.log(imagePath);
+      try {
+        writeFile(imagePath + "/" + name, base64Data, "base64");
+      } catch (e) {
+        console.error(e);
+      }
+      pro.image = nameToSave;
+    }
+
 
     await pro.save();
     proToDisplay = await Professionnel.findById(pro._id)
