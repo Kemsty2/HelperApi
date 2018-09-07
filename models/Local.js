@@ -1,9 +1,12 @@
-let mongoose = require('mongoose');
-let Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const findOrCreate = require("mongoose-findorcreate");
 
-let localSchema = new Schema({
+const localSchema = new Schema({
   longitude: {type: Number},
   latitude: {type: Number}
 });
+
+localSchema.plugin(findOrCreate);
 
 module.exports = (mongoose.model("Local", localSchema));
