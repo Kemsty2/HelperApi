@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt-nodejs");
+const findOrCreate = require("mongoose-find-or-create");
 
 const userOptions = {
   discriminatorKey: "itemtype",
@@ -24,5 +25,7 @@ userSchema.methods.encryptPassword = function (password) {
 userSchema.methods.validPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
+
+userSchema.plugin(findOrCreate);
 
 module.exports = mongoose.model('User', userSchema);
