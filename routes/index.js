@@ -212,7 +212,7 @@ router.post("/EditerPro", async function (req, res) {
     if (req.body.domaine) pro.domaine = req.body.domaine;
     if (req.body.locaux){
         await Promise.all(req.body.locaux.map(async local => {
-          let proLocal = await Professionnel.findOrCreate({_id: local._id});
+          let proLocal = await Local.findOrCreate({_id: local._id});
           proLocal.longitude = local.longitude;
           proLocal.latitude = local.latitude;
           await proLocal.save();
