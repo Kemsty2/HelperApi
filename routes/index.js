@@ -261,7 +261,7 @@ router.post("/EditerPro", async function (req, res) {
     console.error(e);
     res
         .status(400)
-        .json({result: false, data:null, message: "Error during the process: "});
+        .json({result: false, data:null, message: "Error during the process: " + e});
   }
 });
 
