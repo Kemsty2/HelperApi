@@ -1,17 +1,17 @@
-var express = require('express');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose')
-var path = require('path');
+const express = require('express');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const path = require('path');
 
-var index = require('./routes/index');
+const index = require('./routes/index');
 
 mongoose.connect("mongodb://localhost/HelperDb")
     .then(function (value) { console.log("Connexion Reussi à la base de donnée") })
     .catch(function (reason) { console.log(reason) });
 
-var app = express();
+const app = express();
 app.set("json spaces", 4);
 
 app.set('view engine', 'ejs');
@@ -27,7 +27,7 @@ app.use('/', index);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
