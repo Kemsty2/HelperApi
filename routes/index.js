@@ -212,10 +212,17 @@ router.post("/EditerPro", async function (req, res) {
     if (req.body.domaine) pro.domaine = req.body.domaine;
     if (req.body.locaux){
         await Promise.all(req.body.locaux.map(async local => {
-          let proLocal = await Local.findOrCreate({_id: local._id});
+          let proLocal;
+          if(local._id){
+            proLocal = await Local.findById({_id: local._id});
+          }else{
+            proLocal = new Local();
+          }
+          console.log("local", proLocal);
           proLocal.longitude = local.longitude;
           proLocal.latitude = local.latitude;
           await proLocal.save();
+          pro.locaux.push(proLocal);
         }));
     }
     // Todo : manage change of image
