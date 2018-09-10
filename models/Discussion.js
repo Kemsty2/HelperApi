@@ -2,7 +2,6 @@ let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 
 let discussionSchema = new Schema({
-  userType: {type: String, required: true},
   lastMod: {type: Number, required: true},
   exp: {type: Schema.Types.ObjectId, ref: 'User', required: true},
   dest: {type: Schema.Types.ObjectId, ref: 'Professionnel', required: true}
