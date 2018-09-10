@@ -496,33 +496,25 @@ router.post("/NewDiscussion", async (req, res) => {
 });
 
 /**
- * @summary: Recupère la liste des discussions qui impliquent un user
+ * @summary: Recupère la liste des discussions qui impliquent un user, toute les discussion dont l'expediteur c'est l'idUser et toute les discussions ou le destinataire c'est le idUser
  * @param: l'id de l'user
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
  */
 router.get("/FindDiscussion/:idUser", async (req, res) => {
-  let disc;
+  let listeDiscussions;
+  const idUser = req.params.idUser;
   try {
-    disc = await Discussion.findById(req.params.idUser)
+    listeDiscussions = await Discussion.find().or([{exp: idUser}, {dest: idUser}])
         .populate("exp")
         .populate("dest")
         .exec();
-    res.json({data: disc});
+    res.json({data: listeDiscussions});
   } catch (e) {
     console.error(e);
-    res.status(400).json({result: false, data: null});
+    res.status(400).json({result: false, data: null, message: "An Error during the process: " + e});
   }
 
-
-  disc = new Discussion(req.body);
-  try {
-    await disc.save();
-    res.json({result: true});
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({result: false});
-  }
 });
 
 /**
