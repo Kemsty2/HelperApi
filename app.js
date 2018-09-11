@@ -1,11 +1,10 @@
-const express = require('express');
-const logger = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const path = require('path');
-
-const index = require('./routes/index');
+import express from "express";
+import logger from "morgan";
+import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import path from "path";
+import index from "./routes/index";
 
 mongoose.connect("mongodb://localhost/HelperDb")
     .then(function (value) { console.log("Connexion Reussi à la base de donnée") })

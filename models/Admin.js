@@ -1,7 +1,7 @@
-let mongoose = require('mongoose');
-let Schema = mongoose.Schema;
-let bcrypt = require("bcrypt-nodejs");
+import mongoose from "mongoose";
+import bcrypt from "bcrypt-nodejs";
 
+let Schema = mongoose.Schema;
 let adminSchema = new Schema({
   name: {type: String, required: true},
   password: {type: String, required: true},

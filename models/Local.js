@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const findOrCreate = require("mongoose-find-or-create");
+import mongoose from "mongoose";
+import findOrCreate from "mongoose-find-or-create";
 
+const Schema = mongoose.Schema;
 const localSchema = new Schema({
   longitude: {type: Number},
   latitude: {type: Number}

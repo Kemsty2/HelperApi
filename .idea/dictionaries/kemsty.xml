@@ -13,6 +13,7 @@
       <w>itemtype</w>
       <w>liste</w>
       <w>locaux</w>
+      <w>lors</w>
       <w>mkdirp</w>
       <w>mongo</w>
       <w>nouveau</w>
@@ -20,6 +21,7 @@
       <w>professionnel</w>
       <w>professionnels</w>
       <w>quartier</w>
+      <w>reponse</w>
       <w>statut</w>
     </words>
   </dictionary>

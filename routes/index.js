@@ -1,19 +1,19 @@
-const express = require("express");
-const path = require("path");
+import express from "express";
+import path from "path";
+import User from "../models/User";
+import Client from "../models/Client";
+import Demande from "../models/Demande";
+import Domaine from "../models/Domaine";
+import Professionnel from "../models/Professionnel";
+import Local from "../models/Local";
+import Discussion from "../models/Discussion";
+import Admin from "../models/Admin";
+import mkdirp from "mkdirp";
+import fs from "fs";
+import admin from "../config/firebaseConfig";
 
 let router = express.Router();
-const User = require("../models/User");
-const Client = require("../models/Client");
-const Demande = require("../models/Demande");
-const Domaine = require("../models/Domaine");
-const Professionnel = require("../models/Professionnel");
-const Local = require("../models/Local");
-const Discussion = require("../models/Discussion");
-const Admin = require("../models/Admin");
-
-let mkdirp = require("mkdirp");
-let fs = require("fs");
-let getDirName = require("path").dirname;
+let getDirName = path.dirname;
 
 function writeFile(path, contents, cb) {
   try {
@@ -514,7 +514,6 @@ router.get("/FindDiscussion/:idUser", async (req, res) => {
     console.error(e);
     res.status(400).json({result: false, data: null, message: "An Error during the process: " + e});
   }
-
 });
 
 /**
@@ -575,8 +574,37 @@ router.post("/ListeLocaux", async(req, res) => {
     console.error(err);
     res.status(400).send("Error While Retrieving Locaux: " + err.message);
   }
-})
+});
 
+/* Exemple de route pour l'envoi des notifications a tout les utilisateurs
+* C'est juste un exemple, j'ai bien conscience que l'on utilisera les notifications après un evenement serveur
+* */
 
+router.post("/SendNotificationToAllUser", async(req, res) => {
+  try{
+    //Récupérer la liste des utilisateurs à qui ont doit envoyer la notification
+    let users = await User.find().exec();
+    await Promise.all(users.map(async user => {
+      const data = req.body.data;
+      const token = user.token;
+      let message = {
+        notification: {
+          title: "message title",
+          body: "message body"
+        },
+        token: token
+      };
+
+      try{
+        const reponse = await admin.messaging().send(message);
+        console.log("reponse lors de l'envoi du message", reponse);
+      }catch (e) {
+        console.error(e);
+      }
+    }));
+  }catch (e) {
+    console.error(e);
+  }
+});
 
 module.exports = router;

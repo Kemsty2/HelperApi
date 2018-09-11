@@ -1,8 +1,7 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-const bcrypt = require("bcrypt-nodejs");
-const findOrCreate = require("mongoose-find-or-create");
+import mongoose from "mongoose";
+import bcrypt from "bcrypt-nodejs";
 
+const Schema = mongoose.Schema;
 const userOptions = {
   discriminatorKey: "itemtype",
   collection: "Users"

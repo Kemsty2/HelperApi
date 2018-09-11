@@ -1,8 +1,7 @@
-let mongoose = require('mongoose');
+import mongoose from "mongoose";
+import User from "./User";
+
 let Schema = mongoose.Schema;
-const User = require('./User');
-
-
 let professionnelSchema = new Schema({
   email: {type: String},
   siteWeb: String,
