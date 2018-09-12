@@ -214,7 +214,7 @@ router.post("/EditerPro", async function (req, res) {
         await Promise.all(req.body.locaux.map(async local => {
           let proLocal;
           if(local._id){
-            proLocal = await Local.findById({_id: local._id});
+            proLocal = await Local.findById({_id: local._id}).exec();
           }else{
             proLocal = new Local();
           }
