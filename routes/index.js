@@ -509,7 +509,7 @@ router.get("/FindDiscussion/:idUser", async (req, res) => {
         .populate("exp")
         .populate("dest")
         .exec();
-    res.json({data: listeDiscussions});
+    res.json(listeDiscussions);
   } catch (e) {
     console.error(e);
     res.status(400).json({result: false, data: null, message: "An Error during the process: " + e});
