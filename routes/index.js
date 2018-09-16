@@ -89,7 +89,7 @@ router.get("/ListeDemande", async function (req, res) {
  * @param: Demande demande, ObjectId idDomaine, ObjectId idVille
  * @return: true or false depend de si l'ajout a reussi ou non
  * @status: in_testing
- * @todo: add Client data to method
+ * @todo: notification à/aux admins, contenant l'objet Demande
  */
 router.post("/SaveDemande", async function (req, res) {
   let demande = new Demande(req.body);
@@ -168,6 +168,7 @@ router.post("/InscriptionClient", async function (req, res) {
  * @param: Professionnel pro
  * @return: true si le pro a été enregistré, false sinon
  * @statut: Okay
+ * @todo: notification à/aux admins
  */
 router.post("/InscriptionPro", async function (req, res) {
   let professionnel = new Professionnel(req.body);
@@ -297,6 +298,7 @@ router.get("/ListePro", async function (req, res) {
  * @param: object Domaine, image is the key of the image of the domaine
  * @return: retourne true si domaine crée, false avec un message sinon
  * @statut: in_testing
+ * @todo: notification à tous les users, contenant l'objet Domaine
  */
 router.post("/NouveauDomaine", async function (req, res) {
   try {
@@ -416,6 +418,7 @@ router.get("/FindPro/:proId", async (req, res) => {
  * @param: _id pro, _id demande
  * @return: retourne true si domaine crée, false avec un message sinon
  * @statut: in_testing
+ * @todo: notification au pro, contenant l'objet Demande
  */
 router.post("/SetDemandeToPro", async (req, res) => {
   try {
@@ -466,6 +469,7 @@ router.post("/RenewTokenAdmin", async (req, res) => {
  * @param: Array of domaineId
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
+ * @todo: notification à tout le monde, contenant l'objet Domaine
  */
 router.post("/DeleteDomaines", async (req, res) => {
   try {
@@ -483,12 +487,13 @@ router.post("/DeleteDomaines", async (req, res) => {
  * @param: aucun
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
+ * @todo: envoyer notification à exp et dest, contenant l'objet disc
  */
 router.post("/NewDiscussion", async (req, res) => {
   let disc = new Discussion(req.body);
   try {
     await disc.save();
-    res.json({result: true, data: disc});
+    res.json(disc);
   } catch (e) {
     console.error(e);
     res.status(400).json({result: false, data: null});
@@ -531,7 +536,7 @@ router.post("/UpdateDiscussion", async (req, res) => {
     disc.set({lastMod: req.body.lastMod});
 
     await disc.save();
-    res.json({result: true, data: disc});
+    res.json(disc);
   } catch (e) {
     console.error(e);
     res.status(400).json({result: false, data: null});
@@ -576,9 +581,30 @@ router.post("/ListeLocaux", async(req, res) => {
   }
 });
 
+/**
+ * @todo: notification au professionnel modifié, contenant l'objet Pro
+ */
+router.post("/setProStatus", async(req, res) => {
+  try {
+    let pro = await Professionnel.find({_id: req.body._id}).exec();
+    pro.isActive = req.body.isActive;
+    await pro.save();
+    res.json(pro);
+  } catch (err) {
+    console.error(err);
+    res.status(400).send("Error While Retrieving Locaux: " + err.message);
+  }
+});
+
 /* Exemple de route pour l'envoi des notifications a tout les utilisateurs
 * C'est juste un exemple, j'ai bien conscience que l'on utilisera les notifications après un evenement serveur
 * */
+/**
+ * todo: dans ton message là, je vois une notification, pourtant ce n'est pas ça que je veux.
+ * Si tu construit la notification, ça ne va pas avoir le comportement que je souhaite.
+ * Je voudrais juste que tu me renseignes les champs title et body du message.
+ * Relis encore la doc de FCM pour bien voir ce que je dis
+ */
 
 router.post("/SendNotificationToAllUser", async(req, res) => {
   try{
