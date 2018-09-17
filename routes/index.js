@@ -95,12 +95,13 @@ router.get("/ListeDemande", async function (req, res) {
 router.post("/SaveDemande", async function (req, res) {
   let demande = new Demande(req.body);
   try {
-    // incrémente le compteur de demandes du domaine
-    demande.domaine.count++;
     await demande.save();
+    const domaine = await Domaine.findById(demande.domaine).exec();
+    domaine.count = domaine.count + 1; //Incrémente de 1 le domaine
+    await domaine.save();
     res.json({result: true, data: "Votre demande a été enregistré"});
-    const listAdmin = await Admin.find().exec();
-    await Promise.all(listAdmin.map(async adminUser => {
+    if(demande.professionnel){
+      const professionnel = await Professionnel.findById(demande.professionnel).exec();
       const message = {
         android: {
           priority: 'normal',
@@ -109,26 +110,45 @@ router.post("/SaveDemande", async function (req, res) {
             body: demande
           }
         },
-        token: adminUser.token
+        token: professionnel.token
       };
-      //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
-      /*const message = {
-        android: {
-          priority: 'normal',
-          data: {
-            title: 'Activate Account',
-            body: 'Your Account Have Been Activated'
-          }
-        },
-        token: pro.token
-      };*/
-      try{
-        await admin.messaging().send(message);
+      try {
+        admin.messaging().send(message);
       }catch (e) {
         console.error(e);
       }
-    }));
-
+    }
+    else{
+      const listAdmin = await Admin.find().exec();
+      await Promise.all(listAdmin.map(async adminUser => {
+        const message = {
+          android: {
+            priority: 'normal',
+            notification: {
+              title: 'New Demande',
+              body: demande
+            }
+          },
+          token: adminUser.token
+        };
+        //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+        /*const message = {
+          android: {
+            priority: 'normal',
+            data: {
+              title: 'Activate Account',
+              body: 'Your Account Have Been Activated'
+            }
+          },
+          token: pro.token
+        };*/
+        try{
+          await admin.messaging().send(message);
+        }catch (e) {
+          console.error(e);
+        }
+      }));
+    }
   } catch (e) {
     console.error(e);
     res.status(400).json({result: false, data: null});
