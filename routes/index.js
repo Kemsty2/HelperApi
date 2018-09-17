@@ -89,7 +89,8 @@ router.get("/ListeDemande", async function (req, res) {
  * @param: Demande demande, ObjectId idDomaine, ObjectId idVille
  * @return: true or false depend de si l'ajout a reussi ou non
  * @status: in_testing
- * @todo: notification à/aux admins, contenant l'objet Demande
+ * @todo: Si pro == null, notification à/aux admins, contenant l'objet Demande
+ *        sinon notification au professionnel, contenant l'objet Demande
  */
 router.post("/SaveDemande", async function (req, res) {
   let demande = new Demande(req.body);
