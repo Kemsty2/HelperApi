@@ -98,6 +98,36 @@ router.post("/SaveDemande", async function (req, res) {
     demande.domaine.count++;
     await demande.save();
     res.json({result: true, data: "Votre demande a été enregistré"});
+    const listAdmin = await Admin.find().exec();
+    await Promise.all(listAdmin.map(async adminUser => {
+      const message = {
+        android: {
+          priority: 'normal',
+          notification: {
+            title: 'New Demande',
+            body: demande
+          }
+        },
+        token: adminUser.token
+      };
+      //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+      /*const message = {
+        android: {
+          priority: 'normal',
+          data: {
+            title: 'Activate Account',
+            body: 'Your Account Have Been Activated'
+          }
+        },
+        token: pro.token
+      };*/
+      try{
+        await admin.messaging().send(message);
+      }catch (e) {
+        console.error(e);
+      }
+    }));
+
   } catch (e) {
     console.error(e);
     res.status(400).json({result: false, data: null});
@@ -178,6 +208,35 @@ router.post("/InscriptionPro", async function (req, res) {
     professionnel.password = professionnel.encryptPassword(professionnel.password);
     await professionnel.save();
     res.json({result: true, data: professionnel});
+    const listAdmin = await Admin.find().exec();
+    await Promise.all(listAdmin.map(async adminUser => {
+      const message = {
+        android: {
+          priority: 'normal',
+          notification: {
+            title: 'New Professionnel',
+            body: 'A New Professionnel have been registered'
+          }
+        },
+        token: adminUser.token
+      };
+      //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+      /*const message = {
+        android: {
+          priority: 'normal',
+          data: {
+            title: 'Activate Account',
+            body: 'Your Account Have Been Activated'
+          }
+        },
+        token: pro.token
+      };*/
+      try{
+        await admin.messaging().send(message);
+      }catch (e) {
+        console.error(e);
+      }
+    }));
   } catch (e) {
     if (e.name === "MongoError" || e.code == "E11000") {
       res.status(400).send("Name or Email Already Exist");
@@ -349,6 +408,36 @@ router.post("/NouveauDomaine", async function (req, res) {
         data: "Votre Domaine a été créé avec succès"
       }) : res.json({result: true, data: "Votre domaine a été modifié avec succès"})
     }
+    const listUser = await User.find().exec();
+    await Promise.all(listUser.map(async user => {
+      const message = {
+        android: {
+          priority: 'normal',
+          notification: {
+            title: 'New Domaine',
+            body: domaine
+          }
+        },
+        token: user.token
+      };
+      //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+      /*const message = {
+        android: {
+          priority: 'normal',
+          data: {
+            title: 'Activate Account',
+            body: 'Your Account Have Been Activated'
+          }
+        },
+        token: pro.token
+      };*/
+      try{
+        await admin.messaging().send(message);
+      }catch (e) {
+        console.error(e);
+      }
+    }));
+
   } catch (e) {
     console.error(e);
     res.status(400).send("Error during the process: " + e.message);
@@ -427,6 +516,21 @@ router.post("/SetDemandeToPro", async (req, res) => {
 
     demande.set({professionnel: pro});
     await demande.save();
+    const message = {
+      android: {
+        priority: 'normal',
+        notification: {
+          title: 'Attr Demande',
+          body: demande
+        }
+      },
+      token: pro.token
+    };
+    try {
+      await admin.messaging().send(message);
+    }catch (e) {
+      console.error(e);
+    }
   } catch (e) {
     console.error(e);
     res.status(400).send("Error during the process: " + e.message);
@@ -476,6 +580,36 @@ router.post("/DeleteDomaines", async (req, res) => {
     let domainesId = req.body.arrayOfDomaineId;
     await Domaine.deleteMany({_id: {$in: domainesId}});
     res.json({result: true});
+    //Ici pour recuperer le titre tu vas faire getNotification().getTitle() et .getBody() pour body
+    const listUser = await User.find().exec();
+    await Promise.all(listUser.map(async user => {
+      const message = {
+        android: {
+          priority: 'normal',
+          notification: {
+            title: 'Del Domaine',
+            body: 'Domaine have been deleted'
+          }
+        },
+        token: user.token
+      };
+      //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+      /*const message = {
+        android: {
+          priority: 'normal',
+          data: {
+            title: 'Activate Account',
+            body: 'Your Account Have Been Activated'
+          }
+        },
+        token: pro.token
+      };*/
+      try{
+        await admin.messaging().send(message);
+      }catch (e) {
+        console.error(e);
+      }
+    }));
   } catch (e) {
     console.error(e);
     res.status(400).send("Error during the process: " + e.message);
@@ -494,6 +628,33 @@ router.post("/NewDiscussion", async (req, res) => {
   try {
     await disc.save();
     res.json(disc);
+    disc = await Discussion.findById(disc._id).populate("exp").populate("dest").exec();
+    const messageToExp = {
+      android: {
+        priority: 'normal',
+        notification: {
+          title: 'New Discussion',
+          body: disc
+        }
+      },
+      token: disc.exp.token
+    };
+    const messageToDest = {
+      android: {
+        priority: 'normal',
+        notification: {
+          title: 'New Discussion',
+          body: disc
+        }
+      },
+      token: disc.dest.token
+    };
+    try{
+      await admin.messaging().send(messageToExp);
+      await admin.messaging().send(messageToDest);
+    }catch (e) {
+      console.error(e);
+    }
   } catch (e) {
     console.error(e);
     res.status(400).json({result: false, data: null});
@@ -589,6 +750,34 @@ router.post("/setProStatus", async(req, res) => {
     let pro = await Professionnel.find({_id: req.body._id}).exec();
     pro.isActive = req.body.isActive;
     await pro.save();
+    //Ici pour recuperer le titre tu vas faire getNotification().getTitle() et .getBody() pour body
+    const message = {
+      android: {
+        priority: 'normal',
+        notification: {
+          title: 'Activate Account',
+          body: 'Your Account Have Been Activated'
+        }
+      },
+      token: pro.token
+    };
+    //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+    /*const message = {
+      android: {
+        priority: 'normal',
+        data: {
+          title: 'Activate Account',
+          body: 'Your Account Have Been Activated'
+        }
+      },
+      token: pro.token
+    };*/
+    try{
+      const reponse = await admin.messaging().send(message);
+      console.log("reponse lors de l'envoi du message", reponse);
+    }catch (e) {
+      console.error(e);
+    }
     res.json(pro);
   } catch (err) {
     console.error(err);
