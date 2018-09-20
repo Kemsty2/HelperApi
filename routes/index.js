@@ -105,7 +105,7 @@ router.post("/SaveDemande", async function (req, res) {
       const message = {
         android: {
           priority: 'normal',
-          notification: {
+          data: {
             title: 'New Demande',
             body: demande
           }
@@ -124,7 +124,7 @@ router.post("/SaveDemande", async function (req, res) {
         const message = {
           android: {
             priority: 'normal',
-            notification: {
+            data: {
               title: 'New Demande',
               body: demande
             }
@@ -234,7 +234,7 @@ router.post("/InscriptionPro", async function (req, res) {
       const message = {
         android: {
           priority: 'normal',
-          notification: {
+          data: {
             title: 'New Professionnel',
             body: 'A New Professionnel have been registered'
           }
@@ -434,7 +434,7 @@ router.post("/NouveauDomaine", async function (req, res) {
       const message = {
         android: {
           priority: 'normal',
-          notification: {
+          data: {
             title: 'New Domaine',
             body: domaine
           }
@@ -540,7 +540,7 @@ router.post("/SetDemandeToPro", async (req, res) => {
     const message = {
       android: {
         priority: 'normal',
-        notification: {
+        data: {
           title: 'Attr Demande',
           body: demande
         }
@@ -607,7 +607,7 @@ router.post("/DeleteDomaines", async (req, res) => {
       const message = {
         android: {
           priority: 'normal',
-          notification: {
+          data: {
             title: 'Del Domaine',
             body: 'Domaine have been deleted'
           }
@@ -653,7 +653,7 @@ router.post("/NewDiscussion", async (req, res) => {
     const messageToExp = {
       android: {
         priority: 'normal',
-        notification: {
+        data: {
           title: 'New Discussion',
           body: disc
         }
@@ -663,7 +663,7 @@ router.post("/NewDiscussion", async (req, res) => {
     const messageToDest = {
       android: {
         priority: 'normal',
-        notification: {
+        data: {
           title: 'New Discussion',
           body: disc
         }
@@ -775,7 +775,7 @@ router.post("/setProStatus", async(req, res) => {
     const message = {
       android: {
         priority: 'normal',
-        notification: {
+        data: {
           title: 'Activate Account',
           body: 'Your Account Have Been Activated'
         }
