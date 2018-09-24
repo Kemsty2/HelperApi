@@ -284,7 +284,7 @@ router.post("/EditerPro", async function (req, res) {
     if (req.body.email) pro.email = req.body.email;
     if (req.body.lastLat) pro.lastLat = req.body.lastLat;
     if (req.body.lastLong) pro.lastLong = req.body.lastLong;
-    if (req.body.isActive) pro.isActive = req.body.isActive;
+    if (typeof req.body.isActive !== "undefined") pro.isActive = req.body.isActive;
 
     if (req.body.password)
       pro.password = pro.encryptPassword(req.body.password);
