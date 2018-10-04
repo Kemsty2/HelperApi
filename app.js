@@ -6,8 +6,8 @@ import mongoose from "mongoose";
 import path from "path";
 import index from "./routes/index";
 
-mongoose.connect("mongodb://localhost/HelperDb")
-    .then(function (value) { console.log("Connexion Reussi à la base de donnée") })
+mongoose.connect("mongodb://localhost/HelperDb", { useNewUrlParser: true })
+    .then(function () { console.log("Connexion Reussi à la base de donnée") })
     .catch(function (reason) { console.log(reason) });
 
 const app = express();

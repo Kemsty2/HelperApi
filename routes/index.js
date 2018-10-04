@@ -12,7 +12,8 @@ import mkdirp from "mkdirp";
 import fs from "fs";
 import admin from "../config/firebaseConfig";
 
-let router = express.Router();
+let router;
+router = express.Router();
 let getDirName = path.dirname;
 
 function writeFile(path, contents, cb) {
@@ -392,7 +393,7 @@ router.post("/NouveauDomaine", async function (req, res) {
     } else {
       domaine = new Domaine(req.body);
     }
-    if (req.body.image) {
+    if (req.body.image && !(req.body.image.startsWith("http"))) {
       console.log("here");
       let name;
       let nameToSave;
@@ -423,12 +424,10 @@ router.post("/NouveauDomaine", async function (req, res) {
       domaine.image = nameToSave;
     }
     await domaine.save();
-    {
-      !req.body._id ? res.json({
-        result: true,
-        data: "Votre Domaine a été créé avec succès"
-      }) : res.json({result: true, data: "Votre domaine a été modifié avec succès"})
-    }
+    res.json({
+      result: true,
+      data: domaine
+    });
     const listUser = await User.find().exec();
     await Promise.all(listUser.map(async user => {
       const message = {
