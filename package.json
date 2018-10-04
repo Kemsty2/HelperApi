@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "pm2 start --interpreter babel-node bin/www",
+    "start": "nodemon --exec babel-node bin/www",
     "build": "babel bin -d dist",
     "serve": "node dist/index.js"
   },

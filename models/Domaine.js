@@ -6,7 +6,7 @@ let domaineSchema = new Schema({
   domaine: String,
   description: String,
   image: String,
-  count: Number,
+  count: {type: Number, default: 0},
   color: Number
 });
 

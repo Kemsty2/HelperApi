@@ -99,7 +99,7 @@ router.post("/SaveDemande", async function (req, res) {
     const domaine = await Domaine.findById(demande.domaine).exec();
     domaine.count = domaine.count + 1; //Incrémente de 1 le domaine
     await domaine.save();
-    res.json({result: true, data: "Votre demande a été enregistré"});
+    res.json({result: true, data: demande});
     if(demande.professionnel){
       const professionnel = await Professionnel.findById(demande.professionnel).exec();
       const message = {
@@ -151,7 +151,7 @@ router.post("/SaveDemande", async function (req, res) {
     }
   } catch (e) {
     console.error(e);
-    res.status(400).json({result: false, data: null});
+    res.status(400).json({result: false, message: "Error while processing" + e.message});
   }
 });
 
