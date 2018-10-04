@@ -113,7 +113,7 @@ router.post("/SaveDemande", async function (req, res) {
         token: professionnel.token
       };
       try {
-        admin.messaging().send(message);
+        await admin.messaging().send(message);
       }catch (e) {
         console.error(e);
       }
