@@ -5,9 +5,10 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import path from "path";
 import index from "./routes/index";
+import "dotenv/config";
 
-mongoose.connect("mongodb://localhost/HelperDb", { useNewUrlParser: true })
-    .then(function () { console.log("Connexion Reussi à la base de donnée") })
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true })
+    .then(function () { console.log("Connection to the database") })
     .catch(function (reason) { console.log(reason) });
 
 const app = express();

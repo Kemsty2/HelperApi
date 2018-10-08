@@ -1,10 +1,10 @@
-const admin = require("firebase-admin");
-
-const serviceAccount = require("./helper-1531667858972-firebase-adminsdk-71m44-856ac50837.json");
+import admin from "firebase-admin";
+import serviceAccount from "./helper-1531667858972-firebase-adminsdk-71m44-856ac50837.json";
+import "dotenv/config";
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://helperapi-9d8ba.firebaseio.com"
+  databaseURL: process.env.FIREBASE_DATABASE_URL
 });
 
 export default admin;

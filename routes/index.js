@@ -11,6 +11,7 @@ import Admin from "../models/Admin";
 import mkdirp from "mkdirp";
 import fs from "fs";
 import admin from "../config/firebaseConfig";
+import {isAuthenticated, notAuthenticated} from "../config/utils";
 
 let router;
 router = express.Router();
@@ -557,6 +558,12 @@ router.post("/SetDemandeToPro", async (req, res) => {
   }
 });
 
+/**
+ * @summary: Met à jour une discussion
+ * @param: objet Discussion
+ * @return: retourne true si reussi, false sinon
+ * @statut: in_testing
+ */
 router.post("/CheckAdmin", async (req, res) => {
   let admin1 = new Admin();
   let password = admin1.encryptPassword(req.body.password);
@@ -724,6 +731,12 @@ router.post("/UpdateDiscussion", async (req, res) => {
   }
 });
 
+/**
+ * @summary: Met à jour une discussion
+ * @param: objet Discussion
+ * @return: retourne true si reussi, false sinon
+ * @statut: in_testing
+ */
 router.post("/UpdatePosition", async(req, res) => {
   try{
     const _id = req.body._id;
@@ -741,6 +754,12 @@ router.post("/UpdatePosition", async(req, res) => {
   }
 });
 
+/**
+ * @summary: Met à jour une discussion
+ * @param: objet Discussion
+ * @return: retourne true si reussi, false sinon
+ * @statut: in_testing
+ */
 router.post("/NouveauLocal", async(req, res) => {
   let newLocal = new Local(req.body);
   try {
@@ -752,7 +771,13 @@ router.post("/NouveauLocal", async(req, res) => {
   }
 });
 
-router.post("/ListeLocaux", async(req, res) => {
+/**
+ * @summary: Met à jour une discussion
+ * @param: objet Discussion
+ * @return: retourne true si reussi, false sinon
+ * @statut: in_testing
+ */
+router.get("/ListeLocaux", async(req, res) => {
   try {
     let locaux = await Local.find({}).exec();
     res.json(locaux);
@@ -805,40 +830,37 @@ router.post("/setProStatus", async(req, res) => {
   }
 });
 
-/* Exemple de route pour l'envoi des notifications a tout les utilisateurs
-* C'est juste un exemple, j'ai bien conscience que l'on utilisera les notifications après un evenement serveur
-* */
 /**
- * todo: dans ton message là, je vois une notification, pourtant ce n'est pas ça que je veux.
- * Si tu construit la notification, ça ne va pas avoir le comportement que je souhaite.
- * Je voudrais juste que tu me renseignes les champs title et body du message.
- * Relis encore la doc de FCM pour bien voir ce que je dis
+ * @summary: Renvoi la liste des professionnels d'un domaine
+ * @param: domaineId
+ * @return: retourne la liste des professionnels
+ * @statut: in_testing
  */
 
-router.post("/SendNotificationToAllUser", async(req, res) => {
-  try{
-    //Récupérer la liste des utilisateurs à qui ont doit envoyer la notification
-    let users = await User.find().exec();
-    await Promise.all(users.map(async user => {
-      const data = req.body.data;
-      const token = user.token;
-      let message = {
-        notification: {
-          title: "message title",
-          body: "message body"
-        },
-        token: token
-      };
+router.get("/FindProOfDomaine/:domaineId", async(req, res) => {
+  try {
+    let domaineId,professionnels;
+    domaineId = req.params.domaineId;
+    professionnels = await Professionnel.find({domaine: domaineId}).populate("domaine").populate("locaux").exec();
 
-      try{
-        const reponse = await admin.messaging().send(message);
-        console.log("reponse lors de l'envoi du message", reponse);
-      }catch (e) {
-        console.error(e);
-      }
-    }));
+    res.json(professionnels);
   }catch (e) {
     console.error(e);
+    res.status(400).send("Error While Retrieving Professionnels of a domaine: " + e.message);
+  }
+});
+
+router.get("/findDiscussionAndDemande/:idUser", async(req, res) => {
+  try {
+    let discussions, demandes, idUser;
+    idUser = req.params.idUser;
+    discussions = await Discussion.find().or([{exp: idUser}, {dest: idUser}]).populate("exp").populate("dest").exec();
+    demandes = await Demande.find().or([{client: idUser}, {professionnel: idUser}]).populate("client").populate("domaine").populate("professionnel").exec();
+
+    res.json({discussions: discussions, demandes: demandes});
+  }catch (e) {
+    console.error(e);
+    res.status(400).send("Error While Retrieving Discussion and Demande of a user: " + e.message);
   }
 });
 
