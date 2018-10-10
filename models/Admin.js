@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt-nodejs";
 
+
 let Schema = mongoose.Schema;
 let adminSchema = new Schema({
   name: {type: String, required: true},
@@ -16,5 +17,6 @@ adminSchema.methods.encryptPassword = function (password) {
 adminSchema.methods.validPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
+
 
 module.exports = (mongoose.model("Admin", adminSchema));

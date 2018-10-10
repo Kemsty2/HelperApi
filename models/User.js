@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt-nodejs";
+import mongoose_deep_populate from "mongoose-deep-populate";
 
 const Schema = mongoose.Schema;
 const userOptions = {
@@ -25,5 +26,7 @@ userSchema.methods.validPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
+const deepPopulate = mongoose_deep_populate(mongoose);
+userSchema.plugin(deepPopulate, options);
 
 module.exports = mongoose.model('User', userSchema);

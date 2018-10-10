@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import User from "./User";
+import mongoose_deep_populate from "mongoose-deep-populate";
 
 let Schema = mongoose.Schema;
 let professionnelSchema = new Schema({
@@ -12,8 +13,9 @@ let professionnelSchema = new Schema({
   locaux: [{type: Schema.Types.ObjectId, ref: 'Local'}]
 });
 
-
-
 const Professionnel = User.discriminator('Professionnel', professionnelSchema,);
+
+const deepPopulate = mongoose_deep_populate(mongoose);
+professionnelSchema.plugin(deepPopulate, options);
 
 module.exports= (mongoose.model("Professionnel"));

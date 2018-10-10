@@ -11,7 +11,7 @@ import Admin from "../models/Admin";
 import mkdirp from "mkdirp";
 import fs from "fs";
 import admin from "../config/firebaseConfig";
-import {isAuthenticated, notAuthenticated} from "../config/utils";
+import { isAuthenticated, notAuthenticated } from "../config/utils";
 
 let router;
 router = express.Router();
@@ -19,7 +19,7 @@ let getDirName = path.dirname;
 
 function writeFile(path, contents, cb) {
   try {
-    mkdirp(getDirName(path), function (err) {
+    mkdirp(getDirName(path), function(err) {
       if (err) throw err;
       fs.writeFile(path, contents, cb);
     });
@@ -28,7 +28,7 @@ function writeFile(path, contents, cb) {
   }
 }
 
-Array.prototype.compare = function (array) {
+Array.prototype.compare = function(array) {
   if (!array) {
     return false;
   }
@@ -56,7 +56,7 @@ Array.prototype.compare = function (array) {
  * @status: in_testing
  *
  **/
-router.get("/ListeDomaine", async function (req, res) {
+router.get("/ListeDomaine", async function(req, res) {
   try {
     let domaines = await Domaine.find({}).exec();
     res.json(domaines);
@@ -72,13 +72,13 @@ router.get("/ListeDomaine", async function (req, res) {
  * @return: Liste de toutes les demandes, format: Json
  * @status: in_testing
  **/
-router.get("/ListeDemande", async function (req, res) {
+router.get("/ListeDemande", async function(req, res) {
   try {
     let demandes = await Demande.find({})
-        .populate("client")
-        .populate("domaine")
-        .populate("professionnel")
-        .exec();
+      .populate("client")
+      .populate("domaine")
+      .populate("professionnel")
+      .exec();
     res.json(demandes);
   } catch (e) {
     console.error(e);
@@ -94,21 +94,23 @@ router.get("/ListeDemande", async function (req, res) {
  * @todo: Si pro == null, notification à/aux admins, contenant l'objet Demande
  *        sinon notification au professionnel, contenant l'objet Demande
  */
-router.post("/SaveDemande", async function (req, res) {
+router.post("/SaveDemande", async function(req, res) {
   let demande = new Demande(req.body);
   try {
     await demande.save();
     const domaine = await Domaine.findById(demande.domaine).exec();
     domaine.count = domaine.count + 1; //Incrémente de 1 le domaine
     await domaine.save();
-    res.json({result: true, data: demande});
-    if(demande.professionnel){
-      const professionnel = await Professionnel.findById(demande.professionnel).exec();
+    res.json({ result: true, data: demande });
+    if (demande.professionnel) {
+      const professionnel = await Professionnel.findById(
+        demande.professionnel
+      ).exec();
       const message = {
         android: {
-          priority: 'normal',
+          priority: "normal",
           data: {
-            title: 'New Demande',
+            title: "New Demande",
             body: demande
           }
         },
@@ -116,25 +118,25 @@ router.post("/SaveDemande", async function (req, res) {
       };
       try {
         await admin.messaging().send(message);
-      }catch (e) {
+      } catch (e) {
         console.error(e);
       }
-    }
-    else{
+    } else {
       const listAdmin = await Admin.find().exec();
-      await Promise.all(listAdmin.map(async adminUser => {
-        const message = {
-          android: {
-            priority: 'normal',
-            data: {
-              title: 'New Demande',
-              body: demande
-            }
-          },
-          token: adminUser.token
-        };
-        //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
-        /*const message = {
+      await Promise.all(
+        listAdmin.map(async adminUser => {
+          const message = {
+            android: {
+              priority: "normal",
+              data: {
+                title: "New Demande",
+                body: demande
+              }
+            },
+            token: adminUser.token
+          };
+          //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+          /*const message = {
           android: {
             priority: 'normal',
             data: {
@@ -144,16 +146,19 @@ router.post("/SaveDemande", async function (req, res) {
           },
           token: pro.token
         };*/
-        try{
-          await admin.messaging().send(message);
-        }catch (e) {
-          console.error(e);
-        }
-      }));
+          try {
+            await admin.messaging().send(message);
+          } catch (e) {
+            console.error(e);
+          }
+        })
+      );
     }
   } catch (e) {
     console.error(e);
-    res.status(400).json({result: false, message: "Error while processing" + e.message});
+    res
+      .status(400)
+      .json({ result: false, message: "Error while processing" + e.message });
   }
 });
 
@@ -163,32 +168,40 @@ router.post("/SaveDemande", async function (req, res) {
  * @return:
  * @status: in_testing
  */
-router.post("/Connexion", async function (req, res) {
+router.post("/Connexion", async function(req, res) {
   let password = req.body.password;
   let user;
 
   try {
-    if(req.body.nom){
+    if (req.body.nom) {
       const nom = req.body.nom;
-      user = await User.findOne({nom: nom}).exec();
-    }else{
+      user = await User.findOne({ nom: nom }).exec();
+    } else {
       const numero = req.body.numero;
-      user = await User.findOne({numero: numero}).exec();
+      user = await User.findOne({ numero: numero }).exec();
     }
-    if(user){
-      if(user.validPassword(password)){
-        res.json({result: true, data: user});
-      }else{
-        res.status(400).json({result: false, data: null, message: "Incorrect Password"});
+    if (user) {
+      if (user.validPassword(password)) {
+        res.json({ result: true, data: user });
+      } else {
+        res
+          .status(400)
+          .json({ result: false, data: null, message: "Incorrect Password" });
       }
-    }else{
-      res.status(400).json({result: false, data: null, message: "Account not Found"});
+    } else {
+      res
+        .status(400)
+        .json({ result: false, data: null, message: "Account not Found" });
     }
   } catch (e) {
     console.error(e);
     res
-        .status(400)
-        .json({result: false, data: null, message: "Problem during process" + e});
+      .status(400)
+      .json({
+        result: false,
+        data: null,
+        message: "Problem during process" + e
+      });
   }
 });
 
@@ -198,14 +211,13 @@ router.post("/Connexion", async function (req, res) {
  * @return: true si le client a été enregistré, false sinon
  * @status: in_testing
  */
-router.post("/InscriptionClient", async function (req, res) {
+router.post("/InscriptionClient", async function(req, res) {
   let client = new Client(req.body);
 
   try {
-
     client.password = client.encryptPassword(client.password);
     await client.save();
-    res.json({result: true, data: client});
+    res.json({ result: true, data: client });
   } catch (e) {
     console.error(e);
     if (e.name === "MongoError" && e.code == "E11000") {
@@ -223,28 +235,30 @@ router.post("/InscriptionClient", async function (req, res) {
  * @statut: Okay
  * @todo: notification à/aux admins
  */
-router.post("/InscriptionPro", async function (req, res) {
+router.post("/InscriptionPro", async function(req, res) {
   let professionnel = new Professionnel(req.body);
   professionnel.isActive = false;
   try {
-
-    professionnel.password = professionnel.encryptPassword(professionnel.password);
+    professionnel.password = professionnel.encryptPassword(
+      professionnel.password
+    );
     await professionnel.save();
-    res.json({result: true, data: professionnel});
+    res.json({ result: true, data: professionnel });
     const listAdmin = await Admin.find().exec();
-    await Promise.all(listAdmin.map(async adminUser => {
-      const message = {
-        android: {
-          priority: 'normal',
-          data: {
-            title: 'New Professionnel',
-            body: 'A New Professionnel have been registered'
-          }
-        },
-        token: adminUser.token
-      };
-      //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
-      /*const message = {
+    await Promise.all(
+      listAdmin.map(async adminUser => {
+        const message = {
+          android: {
+            priority: "normal",
+            data: {
+              title: "New Professionnel",
+              body: "A New Professionnel have been registered"
+            }
+          },
+          token: adminUser.token
+        };
+        //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+        /*const message = {
         android: {
           priority: 'normal',
           data: {
@@ -254,12 +268,13 @@ router.post("/InscriptionPro", async function (req, res) {
         },
         token: pro.token
       };*/
-      try{
-        await admin.messaging().send(message);
-      }catch (e) {
-        console.error(e);
-      }
-    }));
+        try {
+          await admin.messaging().send(message);
+        } catch (e) {
+          console.error(e);
+        }
+      })
+    );
   } catch (e) {
     if (e.name === "MongoError" || e.code == "E11000") {
       res.status(400).send("Name or Email Already Exist");
@@ -276,7 +291,7 @@ router.post("/InscriptionPro", async function (req, res) {
  * @statut: in_testing
  * Tu dois juste bien construire le JSON à envoyer
  */
-router.post("/EditerPro", async function (req, res) {
+router.post("/EditerPro", async function(req, res) {
   try {
     let pro = await Professionnel.findById(req.body._id).exec();
     let proToDisplay;
@@ -286,19 +301,21 @@ router.post("/EditerPro", async function (req, res) {
     if (req.body.email) pro.email = req.body.email;
     if (req.body.lastLat) pro.lastLat = req.body.lastLat;
     if (req.body.lastLong) pro.lastLong = req.body.lastLong;
-    if (typeof req.body.isActive !== "undefined") pro.isActive = req.body.isActive;
+    if (typeof req.body.isActive !== "undefined")
+      pro.isActive = req.body.isActive;
 
     if (req.body.password)
       pro.password = pro.encryptPassword(req.body.password);
     if (req.body.siteWeb) pro.siteWeb = req.body.siteWeb;
     if (req.body.statut) pro.statut = req.body.statut;
     if (req.body.domaine) pro.domaine = req.body.domaine;
-    if (req.body.locaux){
-        await Promise.all(req.body.locaux.map(async local => {
+    if (req.body.locaux) {
+      await Promise.all(
+        req.body.locaux.map(async local => {
           let proLocal;
-          if(local._id){
-            proLocal = await Local.findById({_id: local._id}).exec();
-          }else{
+          if (local._id) {
+            proLocal = await Local.findById({ _id: local._id }).exec();
+          } else {
             proLocal = new Local();
           }
           console.log("local", proLocal);
@@ -306,7 +323,8 @@ router.post("/EditerPro", async function (req, res) {
           proLocal.latitude = local.latitude;
           await proLocal.save();
           pro.locaux.push(proLocal);
-        }));
+        })
+      );
     }
     // Todo : manage change of image
     if (req.body.image) {
@@ -314,11 +332,11 @@ router.post("/EditerPro", async function (req, res) {
       let name;
       let nameToSave;
       let imagePath = path.join(
-          "__dirname",
-          "..",
-          "public",
-          "images",
-          "upload"
+        "__dirname",
+        "..",
+        "public",
+        "images",
+        "upload"
       );
       let base64Data = req.body.image.replace(/^data:image\/jpeg;base64,/, "");
 
@@ -340,18 +358,21 @@ router.post("/EditerPro", async function (req, res) {
       pro.image = nameToSave;
     }
 
-
     await pro.save();
     proToDisplay = await Professionnel.findById(pro._id)
-        .populate("domaine")
-        .populate("locaux")
-        .exec();
-    res.json({result: true, data: proToDisplay});
+      .populate("domaine")
+      .populate("locaux")
+      .exec();
+    res.json({ result: true, data: proToDisplay });
   } catch (e) {
     console.error(e);
     res
-        .status(400)
-        .json({result: false, data:null, message: "Error during the process: " + e});
+      .status(400)
+      .json({
+        result: false,
+        data: null,
+        message: "Error during the process: " + e
+      });
   }
 });
 
@@ -362,12 +383,12 @@ router.post("/EditerPro", async function (req, res) {
  * @statut: in_testing
  * Tu dois juste bien construire le JSON à envoyer
  */
-router.get("/ListePro", async function (req, res) {
+router.get("/ListePro", async function(req, res) {
   try {
     const professionnels = await Professionnel.find({})
-        .populate("domaine")
-        .populate("locaux")
-        .exec();
+      .populate("domaine")
+      .populate("locaux")
+      .exec();
     res.json(professionnels);
   } catch (e) {
     console.error(e);
@@ -382,7 +403,7 @@ router.get("/ListePro", async function (req, res) {
  * @statut: in_testing
  * @todo: notification à tous les users, contenant l'objet Domaine
  */
-router.post("/NouveauDomaine", async function (req, res) {
+router.post("/NouveauDomaine", async function(req, res) {
   try {
     let domaine;
     if (req.body._id) {
@@ -394,16 +415,16 @@ router.post("/NouveauDomaine", async function (req, res) {
     } else {
       domaine = new Domaine(req.body);
     }
-    if (req.body.image && !(req.body.image.startsWith("http"))) {
+    if (req.body.image && !req.body.image.startsWith("http")) {
       console.log("here");
       let name;
       let nameToSave;
       let imagePath = path.join(
-          "__dirname",
-          "..",
-          "public",
-          "images",
-          "upload"
+        "__dirname",
+        "..",
+        "public",
+        "images",
+        "upload"
       );
       let base64Data = req.body.image.replace(/^data:image\/jpeg;base64,/, "");
 
@@ -430,19 +451,20 @@ router.post("/NouveauDomaine", async function (req, res) {
       data: domaine
     });
     const listUser = await User.find().exec();
-    await Promise.all(listUser.map(async user => {
-      const message = {
-        android: {
-          priority: 'normal',
-          data: {
-            title: 'New Domaine',
-            body: domaine
-          }
-        },
-        token: user.token
-      };
-      //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
-      /*const message = {
+    await Promise.all(
+      listUser.map(async user => {
+        const message = {
+          android: {
+            priority: "normal",
+            data: {
+              title: "New Domaine",
+              body: domaine
+            }
+          },
+          token: user.token
+        };
+        //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+        /*const message = {
         android: {
           priority: 'normal',
           data: {
@@ -452,13 +474,13 @@ router.post("/NouveauDomaine", async function (req, res) {
         },
         token: pro.token
       };*/
-      try{
-        await admin.messaging().send(message);
-      }catch (e) {
-        console.error(e);
-      }
-    }));
-
+        try {
+          await admin.messaging().send(message);
+        } catch (e) {
+          console.error(e);
+        }
+      })
+    );
   } catch (e) {
     console.error(e);
     res.status(400).send("Error during the process: " + e.message);
@@ -478,7 +500,7 @@ router.post("/RenewToken", async (req, res) => {
     let token = req.body.token;
 
     user = await User.findById(_id).exec();
-    user.set({token: token});
+    user.set({ token: token });
     await user.save();
   } catch (e) {
     console.error(e.message);
@@ -496,7 +518,7 @@ router.get("/FindClient/:clientId", async (req, res) => {
   try {
     let client;
     client = await Client.findById(req.params.clientId).exec();
-    res.json({data: client});
+    res.json({ data: client });
   } catch (e) {
     console.error(e);
     res.status(400).send("Error during the process: " + e.message);
@@ -513,10 +535,10 @@ router.get("/FindPro/:proId", async (req, res) => {
   try {
     let pro;
     pro = await Professionnel.findById(req.params.proId)
-        .populate("domaine")
-        .populate("locaux")
-        .exec();
-    res.json({data: pro});
+      .populate("domaine")
+      .populate("locaux")
+      .exec();
+    res.json({ data: pro });
   } catch (e) {
     console.error(e);
     res.status(400).send("Error during the process: " + e.message);
@@ -535,13 +557,13 @@ router.post("/SetDemandeToPro", async (req, res) => {
     let demande = await Demande.findById(req.body.IdDemande).exec();
     let pro = await Professionnel.findById(req.body.idPro).exec();
 
-    demande.set({professionnel: pro});
+    demande.set({ professionnel: pro });
     await demande.save();
     const message = {
       android: {
-        priority: 'normal',
+        priority: "normal",
         data: {
-          title: 'Attr Demande',
+          title: "Attr Demande",
           body: demande
         }
       },
@@ -549,7 +571,7 @@ router.post("/SetDemandeToPro", async (req, res) => {
     };
     try {
       await admin.messaging().send(message);
-    }catch (e) {
+    } catch (e) {
       console.error(e);
     }
   } catch (e) {
@@ -567,12 +589,12 @@ router.post("/SetDemandeToPro", async (req, res) => {
 router.post("/CheckAdmin", async (req, res) => {
   let admin1 = new Admin();
   let password = admin1.encryptPassword(req.body.password);
-  let admin = await Admin.findOne({password: password}).exec();
+  let admin = await Admin.findOne({ password: password }).exec();
 
   if (admin) {
-    res.json({data: admin});
+    res.json({ data: admin });
   } else {
-    res.json({data: null});
+    res.json({ data: null });
   }
 });
 
@@ -587,7 +609,7 @@ router.post("/RenewTokenAdmin", async (req, res) => {
     let admin = await Admin.findById(req.body._id).exec();
     let token = req.body.token;
 
-    admin.set({token: token});
+    admin.set({ token: token });
     await admin.save();
   } catch (e) {
     console.error(e);
@@ -605,23 +627,24 @@ router.post("/RenewTokenAdmin", async (req, res) => {
 router.post("/DeleteDomaines", async (req, res) => {
   try {
     let domainesId = req.body.arrayOfDomaineId;
-    await Domaine.deleteMany({_id: {$in: domainesId}});
-    res.json({result: true});
+    await Domaine.deleteMany({ _id: { $in: domainesId } });
+    res.json({ result: true });
     //Ici pour recuperer le titre tu vas faire getNotification().getTitle() et .getBody() pour body
     const listUser = await User.find().exec();
-    await Promise.all(listUser.map(async user => {
-      const message = {
-        android: {
-          priority: 'normal',
-          data: {
-            title: 'Del Domaine',
-            body: 'Domaine have been deleted'
-          }
-        },
-        token: user.token
-      };
-      //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
-      /*const message = {
+    await Promise.all(
+      listUser.map(async user => {
+        const message = {
+          android: {
+            priority: "normal",
+            data: {
+              title: "Del Domaine",
+              body: "Domaine have been deleted"
+            }
+          },
+          token: user.token
+        };
+        //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
+        /*const message = {
         android: {
           priority: 'normal',
           data: {
@@ -631,12 +654,13 @@ router.post("/DeleteDomaines", async (req, res) => {
         },
         token: pro.token
       };*/
-      try{
-        await admin.messaging().send(message);
-      }catch (e) {
-        console.error(e);
-      }
-    }));
+        try {
+          await admin.messaging().send(message);
+        } catch (e) {
+          console.error(e);
+        }
+      })
+    );
   } catch (e) {
     console.error(e);
     res.status(400).send("Error during the process: " + e.message);
@@ -655,12 +679,15 @@ router.post("/NewDiscussion", async (req, res) => {
   try {
     await disc.save();
     res.json(disc);
-    disc = await Discussion.findById(disc._id).populate("exp").populate("dest").exec();
+    disc = await Discussion.findById(disc._id)
+      .populate("exp")
+      .populate("dest")
+      .exec();
     const messageToExp = {
       android: {
-        priority: 'normal',
+        priority: "normal",
         data: {
-          title: 'New Discussion',
+          title: "New Discussion",
           body: disc
         }
       },
@@ -668,23 +695,23 @@ router.post("/NewDiscussion", async (req, res) => {
     };
     const messageToDest = {
       android: {
-        priority: 'normal',
+        priority: "normal",
         data: {
-          title: 'New Discussion',
+          title: "New Discussion",
           body: disc
         }
       },
       token: disc.dest.token
     };
-    try{
+    try {
       await admin.messaging().send(messageToExp);
       await admin.messaging().send(messageToDest);
-    }catch (e) {
+    } catch (e) {
       console.error(e);
     }
   } catch (e) {
     console.error(e);
-    res.status(400).json({result: false, data: null});
+    res.status(400).json({ result: false, data: null });
   }
 });
 
@@ -698,14 +725,21 @@ router.get("/FindDiscussion/:idUser", async (req, res) => {
   let listeDiscussions;
   const idUser = req.params.idUser;
   try {
-    listeDiscussions = await Discussion.find().or([{exp: idUser}, {dest: idUser}])
-        .populate("exp")
-        .populate("dest")
-        .exec();
+    listeDiscussions = await Discussion.find()
+      .or([{ exp: idUser }, { dest: idUser }])
+      .populate("exp")
+      .populate("dest")
+      .exec();
     res.json(listeDiscussions);
   } catch (e) {
     console.error(e);
-    res.status(400).json({result: false, data: null, message: "An Error during the process: " + e});
+    res
+      .status(400)
+      .json({
+        result: false,
+        data: null,
+        message: "An Error during the process: " + e
+      });
   }
 });
 
@@ -718,16 +752,15 @@ router.get("/FindDiscussion/:idUser", async (req, res) => {
 router.post("/UpdateDiscussion", async (req, res) => {
   try {
     let disc = await Discussion.findById(req.body._id)
-        .populate("exp")
-        .populate("dest")
-        .exec();
-    disc.set({lastMod: req.body.lastMod});
+      .deepPopulate('exp dest dest.locaux dest.domaine exp.locaux exp.domaine')
+      .exec();
+    disc.set({ lastMod: req.body.lastMod });
 
     await disc.save();
     res.json(disc);
   } catch (e) {
     console.error(e);
-    res.status(400).json({result: false, data: null});
+    res.status(400).json({ result: false, data: null });
   }
 });
 
@@ -737,20 +770,21 @@ router.post("/UpdateDiscussion", async (req, res) => {
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
  */
-router.post("/UpdatePosition", async(req, res) => {
-  try{
+router.post("/UpdatePosition", async (req, res) => {
+  try {
     const _id = req.body._id;
     const lastLong = req.body.lastLong;
     const lastLat = req.body.lastLat;
 
     const user = await User.findById(_id).exec();
-    user.set({lastLat: lastLat});
-    user.set({lastLong: lastLong});
+    user.set({ lastLat: lastLat });
+    user.set({ lastLong: lastLong });
 
     await user.save();
-  }catch (e) {
+    //res.status(200).json(user)
+  } catch (e) {
     console.error(e);
-    res.status(400).json({result: false, data: null});
+    res.status(400).json({ result: false, data: null });
   }
 });
 
@@ -760,14 +794,14 @@ router.post("/UpdatePosition", async(req, res) => {
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
  */
-router.post("/NouveauLocal", async(req, res) => {
+router.post("/NouveauLocal", async (req, res) => {
   let newLocal = new Local(req.body);
   try {
     await newLocal.save();
-    res.json({result: true, data: newLocal});
+    res.json({ result: true, data: newLocal });
   } catch (e) {
     console.error(e);
-    res.status(400).json({result: false, data: null});
+    res.status(400).json({ result: false, data: null });
   }
 });
 
@@ -777,7 +811,7 @@ router.post("/NouveauLocal", async(req, res) => {
  * @return: retourne true si reussi, false sinon
  * @statut: in_testing
  */
-router.get("/ListeLocaux", async(req, res) => {
+router.get("/ListeLocaux", async (req, res) => {
   try {
     let locaux = await Local.find({}).exec();
     res.json(locaux);
@@ -790,37 +824,26 @@ router.get("/ListeLocaux", async(req, res) => {
 /**
  * @todo: notification au professionnel modifié, contenant l'objet Pro
  */
-router.post("/setProStatus", async(req, res) => {
+router.post("/setProStatus", async (req, res) => {
   try {
-    let pro = await Professionnel.find({_id: req.body._id}).exec();
+    let pro = await Professionnel.find({ _id: req.body._id }).deepPopulate("domaine locaux").exec();
     pro.isActive = req.body.isActive;
     await pro.save();
     //Ici pour recuperer le titre tu vas faire getNotification().getTitle() et .getBody() pour body
     const message = {
       android: {
-        priority: 'normal',
+        priority: "normal",
         data: {
-          title: 'Activate Account',
-          body: 'Your Account Have Been Activated'
+          title: "Activate Account",
+          body: "Your Account Have Been Activated"
         }
       },
       token: pro.token
     };
-    //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
-    /*const message = {
-      android: {
-        priority: 'normal',
-        data: {
-          title: 'Activate Account',
-          body: 'Your Account Have Been Activated'
-        }
-      },
-      token: pro.token
-    };*/
-    try{
+    try {
       const reponse = await admin.messaging().send(message);
       console.log("reponse lors de l'envoi du message", reponse);
-    }catch (e) {
+    } catch (e) {
       console.error(e);
     }
     res.json(pro);
@@ -837,30 +860,46 @@ router.post("/setProStatus", async(req, res) => {
  * @statut: in_testing
  */
 
-router.get("/FindProOfDomaine/:domaineId", async(req, res) => {
+router.get("/FindProOfDomaine/:domaineId", async (req, res) => {
   try {
-    let domaineId,professionnels;
+    let domaineId, professionnels;
     domaineId = req.params.domaineId;
-    professionnels = await Professionnel.find({domaine: domaineId}).populate("domaine").populate("locaux").exec();
+    professionnels = await Professionnel.find({ domaine: domaineId })
+      .populate("domaine")
+      .populate("locaux")
+      .exec();
 
     res.json(professionnels);
-  }catch (e) {
+  } catch (e) {
     console.error(e);
-    res.status(400).send("Error While Retrieving Professionnels of a domaine: " + e.message);
+    res
+      .status(400)
+      .send("Error While Retrieving Professionnels of a domaine: " + e.message);
   }
 });
 
-router.get("/findDiscussionAndDemande/:idUser", async(req, res) => {
+router.get("/findDiscussionAndDemande/:idUser", async (req, res) => {
   try {
     let discussions, demandes, idUser;
     idUser = req.params.idUser;
-    discussions = await Discussion.find().or([{exp: idUser}, {dest: idUser}]).populate("exp").populate("dest").exec();
-    demandes = await Demande.find().or([{client: idUser}, {professionnel: idUser}]).populate("client").populate("domaine").populate("professionnel").exec();
+    discussions = await Discussion.find()
+      .or([{ exp: idUser }, { dest: idUser }])
+      .deepPopulate('exp dest dest.locaux dest.domaine exp.locaux exp.domaine')
+      .exec();
 
-    res.json({discussions: discussions, demandes: demandes});
-  }catch (e) {
+    demandes = await Demande.find()
+      .or([{ client: idUser }, { professionnel: idUser }])
+      .deepPopulate("client domaine professionnel professionnel.domaine professionnel.locaux")
+      .exec();
+
+    res.json({ discussions: discussions, demandes: demandes });
+  } catch (e) {
     console.error(e);
-    res.status(400).send("Error While Retrieving Discussion and Demande of a user: " + e.message);
+    res
+      .status(400)
+      .send(
+        "Error While Retrieving Discussion and Demande of a user: " + e.message
+      );
   }
 });
 

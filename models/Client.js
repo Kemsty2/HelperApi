@@ -7,3 +7,4 @@ const clientSchema = new Schema({});
 const Client = User.discriminator('Client', clientSchema,);
 
 module.exports = (mongoose.model("Client"));
+
