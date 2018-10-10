@@ -16,6 +16,6 @@ let professionnelSchema = new Schema({
 const Professionnel = User.discriminator('Professionnel', professionnelSchema,);
 
 const deepPopulate = mongoose_deep_populate(mongoose);
-professionnelSchema.plugin(deepPopulate, options);
+professionnelSchema.plugin(deepPopulate);
 
 module.exports= (mongoose.model("Professionnel"));

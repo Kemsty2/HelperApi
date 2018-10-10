@@ -10,6 +10,6 @@ let discussionSchema = new Schema({
 });
 
 const deepPopulate = mongoose_deep_populate(mongoose);
-discussionSchema.plugin(deepPopulate, options);
+discussionSchema.plugin(deepPopulate);
 
 module.exports = (mongoose.model("Discussion", discussionSchema));

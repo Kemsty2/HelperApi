@@ -27,6 +27,6 @@ userSchema.methods.validPassword = function (password) {
 };
 
 const deepPopulate = mongoose_deep_populate(mongoose);
-userSchema.plugin(deepPopulate, options);
+userSchema.plugin(deepPopulate);
 
 module.exports = mongoose.model('User', userSchema);

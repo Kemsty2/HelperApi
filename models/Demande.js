@@ -16,6 +16,6 @@ let demandeSchema = new Schema({
 });
 
 const deepPopulate = mongoose_deep_populate(mongoose);
-demandeSchema.plugin(deepPopulate, options);
+demandeSchema.plugin(deepPopulate);
 
 module.exports = (mongoose.model("Demande", demandeSchema));
