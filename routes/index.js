@@ -884,7 +884,15 @@ router.get("/findDiscussionAndDemande/:idUser", async (req, res) => {
     idUser = req.params.idUser;
     discussions = await Discussion.find()
       .or([{ exp: idUser }, { dest: idUser }])
-      .deepPopulate('exp dest dest.locaux dest.domaine exp.locaux exp.domaine')
+      .deepPopulate('exp dest dest.locaux dest.domaine')
+      .populate({
+        path  : 'exp.domaine',
+        model : 'Professionnel'
+      })
+      .populate({
+        path  : 'exp.locaux',
+        model : 'Professionnel'
+      })
       .exec();
 
     demandes = await Demande.find()
