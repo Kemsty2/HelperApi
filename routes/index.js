@@ -195,13 +195,11 @@ router.post("/Connexion", async function(req, res) {
     }
   } catch (e) {
     console.error(e);
-    res
-      .status(400)
-      .json({
-        result: false,
-        data: null,
-        message: "Problem during process" + e
-      });
+    res.status(400).json({
+      result: false,
+      data: null,
+      message: "Problem during process" + e
+    });
   }
 });
 
@@ -359,20 +357,15 @@ router.post("/EditerPro", async function(req, res) {
     }
 
     await pro.save();
-    proToDisplay = await Professionnel.findById(pro._id)
-      .populate("domaine")
-      .populate("locaux")
-      .exec();
+    proToDisplay = await pro.deepPopulate("locaux domaine").exec();
     res.json({ result: true, data: proToDisplay });
   } catch (e) {
     console.error(e);
-    res
-      .status(400)
-      .json({
-        result: false,
-        data: null,
-        message: "Error during the process: " + e
-      });
+    res.status(400).json({
+      result: false,
+      data: null,
+      message: "Error during the process: " + e
+    });
   }
 });
 
@@ -386,8 +379,7 @@ router.post("/EditerPro", async function(req, res) {
 router.get("/ListePro", async function(req, res) {
   try {
     const professionnels = await Professionnel.find({})
-      .populate("domaine")
-      .populate("locaux")
+      .deepPopulate("locaux domaine")
       .exec();
     res.json(professionnels);
   } catch (e) {
@@ -463,17 +455,6 @@ router.post("/NouveauDomaine", async function(req, res) {
           },
           token: user.token
         };
-        //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
-        /*const message = {
-        android: {
-          priority: 'normal',
-          data: {
-            title: 'Activate Account',
-            body: 'Your Account Have Been Activated'
-          }
-        },
-        token: pro.token
-      };*/
         try {
           await admin.messaging().send(message);
         } catch (e) {
@@ -535,8 +516,7 @@ router.get("/FindPro/:proId", async (req, res) => {
   try {
     let pro;
     pro = await Professionnel.findById(req.params.proId)
-      .populate("domaine")
-      .populate("locaux")
+      .deepPopulate("domaine locaux")
       .exec();
     res.json({ data: pro });
   } catch (e) {
@@ -643,17 +623,6 @@ router.post("/DeleteDomaines", async (req, res) => {
           },
           token: user.token
         };
-        //Ici Pour recuperer le titre tu vas faire un getData().get("title"), idem pour body
-        /*const message = {
-        android: {
-          priority: 'normal',
-          data: {
-            title: 'Activate Account',
-            body: 'Your Account Have Been Activated'
-          }
-        },
-        token: pro.token
-      };*/
         try {
           await admin.messaging().send(message);
         } catch (e) {
@@ -679,10 +648,9 @@ router.post("/NewDiscussion", async (req, res) => {
   try {
     await disc.save();
     res.json(disc);
-    disc = await Discussion.findById(disc._id)
-      .populate("exp")
-      .populate("dest")
-      .exec();
+    disc = await disc.deepPopulate(
+      "exp dest exp.domaine dest.domaine exp.locaux dest.locaux"
+    );
     const messageToExp = {
       android: {
         priority: "normal",
@@ -727,18 +695,16 @@ router.get("/FindDiscussion/:idUser", async (req, res) => {
   try {
     listeDiscussions = await Discussion.find()
       .or([{ exp: idUser }, { dest: idUser }])
-      .deepPopulate('exp dest dest.locaux dest.domaine exp.locaux exp.domaine')
+      .deepPopulate("exp dest dest.locaux dest.domaine exp.locaux exp.domaine")
       .exec();
     res.json(listeDiscussions);
   } catch (e) {
     console.error(e);
-    res
-      .status(400)
-      .json({
-        result: false,
-        data: null,
-        message: "An Error during the process: " + e
-      });
+    res.status(400).json({
+      result: false,
+      data: null,
+      message: "An Error during the process: " + e
+    });
   }
 });
 
@@ -751,7 +717,7 @@ router.get("/FindDiscussion/:idUser", async (req, res) => {
 router.post("/UpdateDiscussion", async (req, res) => {
   try {
     let disc = await Discussion.findById(req.body._id)
-      .deepPopulate('exp dest dest.locaux dest.domaine exp.locaux exp.domaine')
+      .deepPopulate("exp dest dest.locaux dest.domaine exp.locaux exp.domaine")
       .exec();
     disc.set({ lastMod: req.body.lastMod });
 
@@ -825,7 +791,9 @@ router.get("/ListeLocaux", async (req, res) => {
  */
 router.post("/setProStatus", async (req, res) => {
   try {
-    let pro = await Professionnel.find({ _id: req.body._id }).deepPopulate("domaine locaux").exec();
+    let pro = await Professionnel.find({ _id: req.body._id })
+      .deepPopulate("domaine locaux")
+      .exec();
     pro.isActive = req.body.isActive;
     await pro.save();
     //Ici pour recuperer le titre tu vas faire getNotification().getTitle() et .getBody() pour body
@@ -883,12 +851,14 @@ router.get("/findDiscussionAndDemande/:idUser", async (req, res) => {
     idUser = req.params.idUser;
     discussions = await Discussion.find()
       .or([{ exp: idUser }, { dest: idUser }])
-      .deepPopulate('exp dest dest.locaux dest.domaine exp.domaine exp.locaux')
+      .deepPopulate("exp dest dest.locaux dest.domaine exp.domaine exp.locaux")
       .exec();
 
     demandes = await Demande.find()
       .or([{ client: idUser }, { professionnel: idUser }])
-      .deepPopulate("client domaine professionnel professionnel.domaine professionnel.locaux")
+      .deepPopulate(
+        "client domaine professionnel professionnel.domaine professionnel.locaux"
+      )
       .exec();
 
     res.json({ discussions: discussions, demandes: demandes });
