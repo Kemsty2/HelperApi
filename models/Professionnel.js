@@ -9,8 +9,6 @@ let professionnelSchema = new Schema({
   statut: {type: String},
   image: {type: String},
   isActive: {type: Boolean},
-  domaine: {type: Schema.Types.ObjectId, ref: 'Domaine'},
-  locaux: [{type: Schema.Types.ObjectId, ref: 'Local'}]
 });
 
 const Professionnel = User.discriminator('Professionnel', professionnelSchema,);

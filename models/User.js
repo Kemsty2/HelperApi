@@ -15,6 +15,8 @@ const userSchema = new Schema({
   lastLat: {type: Number},
   lastLong: {type: Number},
   token : {type: String},
+  domaine: {type: Schema.Types.ObjectId, ref: 'Domaine'},
+  locaux: [{type: Schema.Types.ObjectId, ref: 'Local'}]
 },userOptions);
 
 userSchema.methods.encryptPassword = function (password) {
