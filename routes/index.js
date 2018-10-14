@@ -647,10 +647,10 @@ router.post("/NewDiscussion", async (req, res) => {
   let disc = new Discussion(req.body);
   try {
     await disc.save();
-    res.json(disc);
     disc = await disc.deepPopulate(
       "exp dest exp.domaine dest.domaine exp.locaux dest.locaux"
     );
+    res.json(disc);
     const messageToExp = {
       android: {
         priority: "normal",
@@ -831,7 +831,7 @@ router.get("/FindProOfDomaine/:domaineId", async (req, res) => {
   try {
     let domaineId, professionnels;
     domaineId = req.params.domaineId;
-    professionnels = await Professionnel.find({ domaine: domaineId })
+    professionnels = await Professionnel.find({ domaine: domaineId, active: true })
       .populate("domaine")
       .populate("locaux")
       .exec();
