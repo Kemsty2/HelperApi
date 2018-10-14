@@ -357,7 +357,7 @@ router.post("/EditerPro", async function(req, res) {
     }
 
     await pro.save();
-    proToDisplay = await pro.deepPopulate("locaux domaine").exec();
+    proToDisplay = await pro.deepPopulate("locaux domaine");
     res.json({ result: true, data: proToDisplay });
   } catch (e) {
     console.error(e);
