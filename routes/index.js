@@ -831,7 +831,7 @@ router.get("/FindProOfDomaine/:domaineId", async (req, res) => {
   try {
     let domaineId, professionnels;
     domaineId = req.params.domaineId;
-    professionnels = await Professionnel.find({ domaine: domaineId, active: true })
+    professionnels = await Professionnel.find({ domaine: domaineId, isActive: true })
       .populate("domaine")
       .populate("locaux")
       .exec();
