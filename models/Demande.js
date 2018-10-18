@@ -11,6 +11,7 @@ let demandeSchema = new Schema({
   ville:{type: String},
   client: {type:Schema.Types.ObjectId, ref: 'User'},
   domaine: {type:Schema.Types.ObjectId, ref: 'Domaine'},
+  dateTime: {type: Number},
   professionnel: {type:Schema.Types.ObjectId, ref: 'Professionnel'},
   dateAttrib: {type: Number},
 });

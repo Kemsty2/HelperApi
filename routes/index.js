@@ -532,7 +532,7 @@ router.get("/FindPro/:proId", async (req, res) => {
  * @statut: in_testing
  * @todo: notification au pro, contenant l'objet Demande
  */
-router.post("/SetDemandeToPro", async (req, res) => {
+/*router.post("/SetDemandeToPro", async (req, res) => {
   try {
     let demande = await Demande.findById(req.body.IdDemande).exec();
     let pro = await Professionnel.findById(req.body.idPro).exec();
@@ -557,6 +557,39 @@ router.post("/SetDemandeToPro", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(400).send("Error during the process: " + e.message);
+  }
+});*/
+
+router.post("/SetDemandeToPro", async function(req, res) {
+  try {
+    let dem = await Demande.findById(req.body._id).exec();
+    let pro = await Professionnel.findById(req.body.idPro).exec();
+    // on n'update que dateAttrib et professionnel
+    dem.set({ dateAttrib: req.body.dateAttrib, professionnel: pro });
+    await dem.save();
+
+    const message = {
+      android: {
+        priority: "normal",
+        data: {
+          title: "Attr Demande",
+          body: demande
+        }
+      },
+      token: pro.token
+    };
+    try {
+      await admin.messaging().send(message);
+    } catch (e) {
+      console.error(e);
+    }
+  } catch(e) {
+    console.error(e);
+    res.status(400).json({
+      result: false,
+      data: null,
+      message: "Error during the process: " + e
+    });
   }
 });
 
@@ -869,6 +902,68 @@ router.get("/findDiscussionAndDemande/:idUser", async (req, res) => {
       .send(
         "Error While Retrieving Discussion and Demande of a user: " + e.message
       );
+  }
+});
+
+router.post("/EditerDemande", async function(req, res) {
+  try {
+    let dem = await Demande.findById(req.body._id).exec();
+    // on n'update que 
+  } catch(e) {
+    console.error(e);
+    res.status(400).json({
+      result: false,
+      data: null,
+      message: "Error during the process: " + e
+    });
+  }
+
+  //
+  try {
+    let pro = await Professionnel.findById(req.body._id).exec();
+    let proToDisplay;
+    console.log(req.body._id);
+    if (req.body.nom) pro.nom = req.body.nom;
+    if (req.body.numero) pro.numero = req.body.numero;
+    if (req.body.email) pro.email = req.body.email;
+    if (req.body.lastLat) pro.lastLat = req.body.lastLat;
+    if (req.body.lastLong) pro.lastLong = req.body.lastLong;
+    if (typeof req.body.isActive !== "undefined")
+      pro.isActive = req.body.isActive;
+
+    if (req.body.password)
+      pro.password = pro.encryptPassword(req.body.password);
+    if (req.body.siteWeb) pro.siteWeb = req.body.siteWeb;
+    if (req.body.statut) pro.statut = req.body.statut;
+    if (req.body.domaine) pro.domaine = req.body.domaine;
+    if (req.body.locaux) {
+      await Promise.all(
+        req.body.locaux.map(async local => {
+          let proLocal;
+          if (local._id) {
+            proLocal = await Local.findById({ _id: local._id }).exec();
+          } else {
+            proLocal = new Local();
+          }
+          console.log("local", proLocal);
+          proLocal.longitude = local.longitude;
+          proLocal.latitude = local.latitude;
+          await proLocal.save();
+          pro.locaux.push(proLocal);
+        })
+      );
+    }
+
+    await pro.save();
+    proToDisplay = await pro.deepPopulate("locaux domaine");
+    res.json({ result: true, data: proToDisplay });
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({
+      result: false,
+      data: null,
+      message: "Error during the process: " + e
+    });
   }
 });
 
