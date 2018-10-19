@@ -575,7 +575,7 @@ router.post("/SetDemandeToPro", async function(req, res) {
           body: dem
         }
       },
-      token: pro.token
+      token: dem.professionnel.token
     };
     try {
       await admin.messaging().send(message);
