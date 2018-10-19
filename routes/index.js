@@ -573,7 +573,7 @@ router.post("/SetDemandeToPro", async function(req, res) {
         priority: "normal",
         data: {
           title: "Attr Demande",
-          body: demande
+          body: dem
         }
       },
       token: pro.token
@@ -583,6 +583,8 @@ router.post("/SetDemandeToPro", async function(req, res) {
     } catch (e) {
       console.error(e);
     }
+
+    res.json(dem);
   } catch(e) {
     console.error(e);
     res.status(400).json({
