@@ -563,9 +563,8 @@ router.get("/FindPro/:proId", async (req, res) => {
 router.post("/SetDemandeToPro", async function(req, res) {
   try {
     let dem = await Demande.findById(req.body._id).exec();
-    let pro = await Professionnel.findById(dem.professionnel._id).exec();
     // on n'update que dateAttrib et professionnel
-    dem.set({ dateAttrib: req.body.dateAttrib, professionnel: pro });
+    dem.set({ dateAttrib: req.body.dateAttrib, professionnel: req.body.professionnel._id });
     await dem.save();
 
     const message = {
