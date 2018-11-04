@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon --exec babel-node bin/www",
+    "start": "pm2 start --interpreter babel-node bin/www",
     "build": "babel bin -d dist",
     "serve": "node dist/index.js"
   },
@@ -12,7 +12,7 @@
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
-    "dotenv": "^6.0.0",
+    "dotenv": "^6.1.0",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
     "firebase-admin": "^6.0.0",

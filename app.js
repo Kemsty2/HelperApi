@@ -5,9 +5,8 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import path from "path";
 import index from "./routes/index";
-import "dotenv/config";
 
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true })
+mongoose.connect("mongodb://localhost:27017/HelperDb", { useNewUrlParser: true })
     .then(function () { console.log("Connection to the database") })
     .catch(function (reason) { console.log(reason) });
 
@@ -16,7 +15,7 @@ app.set("json spaces", 4);
 
 app.set('view engine', 'ejs');
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+//app.use(favicon(path.join(dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
