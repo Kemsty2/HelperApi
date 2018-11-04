@@ -319,8 +319,10 @@ router.post("/EditerPro", async function(req, res) {
           console.log("local", proLocal);
           proLocal.longitude = local.longitude;
           proLocal.latitude = local.latitude;
-          await proLocal.save();
-          pro.locaux.push(proLocal);
+          if (!pro.locaux.includes(proLocal)) {
+            await proLocal.save();
+            pro.locaux.push(proLocal);
+          }
         })
       );
     }
@@ -823,7 +825,7 @@ router.get("/ListeLocaux", async (req, res) => {
 /**
  * @todo: notification au professionnel modifié, contenant l'objet Pro
  */
-router.post("/setProStatus", async (req, res) => {
+router.post("/SetProStatus", async (req, res) => {
   try {
     let pro = await Professionnel.find({ _id: req.body._id })
       .deepPopulate("domaine locaux")
