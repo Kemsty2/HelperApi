@@ -17,11 +17,13 @@ let router;
 router = express.Router();
 let getDirName = path.dirname;
 
-function writeFile(path, contents, cb) {
+function writeFile(path, contents, type) {
   try {
     mkdirp(getDirName(path), function(err) {
-      if (err) throw err;
-      fs.writeFile(path, contents, cb);
+      if (err) console.log("mkdirp:" + err);
+      else fs.writeFile(path, contents, type, (err) => {
+	  if (err) console.log(err);
+      });
     });
   } catch (e) {
     console.error(e);
@@ -48,6 +50,17 @@ Array.prototype.compare = function(array) {
   }
   return true;
 };
+
+/**
+ * @summary: EndPoint pour pinger le serveur
+ * @params: aucun
+ * @return: aucun
+ * @status: in_testing
+ *
+ **/
+router.get("/", async function(req, res) {
+  res.json();
+});
 
 /**
  * @summary: EndPoint pour récuperer la liste de tous les domaines
@@ -182,6 +195,7 @@ router.post("/Connexion", async function(req, res) {
     }
     if (user) {
       if (user.validPassword(password)) {
+	user = await user.deepPopulate("locaux domaine");
         res.json({ result: true, data: user });
       } else {
         res
@@ -431,7 +445,7 @@ router.post("/NouveauDomaine", async function(req, res) {
         nameToSave = "/images/upload" + "/" + domaine._id + "_img.png";
         name = "/" + domaine._id + "_img.png";
       }
-      console.log(imagePath);
+
       try {
         writeFile(imagePath + "/" + name, base64Data, "base64");
       } catch (e) {
@@ -872,7 +886,7 @@ router.post("/SetProStatus", async (req, res) => {
     res.json(pro);
   } catch (err) {
     console.error(err);
-    res.status(400).send("Error While Retrieving Locaux: " + err.message);
+    res.status(400).send("Error While Using SetProStatus: " + err.message);
   }
 });
 
@@ -988,6 +1002,43 @@ router.post("/EditerDemande", async function(req, res) {
       message: "Error during the process: " + e
     });
   }
+});
+
+router.post("/SetNewAdmin", async (req, res) => {
+
+    let admin = new Admin(req.body);
+
+    try {
+        admin.password = admin.encryptPassword(admin.password);
+        await admin.save();
+        res.json({ result: true, data: admin });
+    } catch (e) {
+        console.error(e);
+        res.status(400).send("erreur : " + e);
+    }
+});
+
+router.post("/ConnexionAdmin", async (req, res) => {
+  
+    //let admin = await Admin.findOne({ _id : req.body._id }).exec();
+let admin = await Admin.findOne({ name : req.body._name }).exec();
+
+    try {
+	if (admin)
+	    /*if (admin.token)
+	        res.json({ result: user.validPassword(password) });
+	    else */
+{ 
+admin.token = req.body.token;
+await admin.save();
+res.json({ result: admin.validPassword(req.body.password) });
+}
+    } catch (e) {
+        console.error(e);
+        res.status(400).send("erreur: " + e);
+    }
+
+
 });
 
 module.exports = router;
