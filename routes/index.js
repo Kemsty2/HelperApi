@@ -841,7 +841,7 @@ router.get("/ListeLocaux", async (req, res) => {
  */
 router.post("/SetProStatus", async (req, res) => {
   try {
-    let pro = await Professionnel.find({ _id: req.body._id })
+    let pro = await Professionnel.findById(req.body._id)
       .deepPopulate("domaine locaux")
       .exec();
     pro.isActive = req.body.isActive;
