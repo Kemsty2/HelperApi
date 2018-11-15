@@ -409,7 +409,7 @@ router.get("/ListePro", async function(req, res) {
  * @param: object Domaine, image is the key of the image of the domaine
  * @return: retourne true si domaine crée, false avec un message sinon
  * @statut: in_testing
- * @todo: notification à tous les users et tous les admins, contenant l'objet Domaine
+ * @todo: notification à tous les users, contenant l'objet Domaine
  */
 router.post("/NouveauDomaine", async function(req, res) {
   try {
@@ -470,26 +470,6 @@ router.post("/NouveauDomaine", async function(req, res) {
             }
           },
           token: user.token
-        };
-        try {
-          await admin.messaging().send(message);
-        } catch (e) {
-          console.error(e);
-        }
-      })
-    );
-    const listAdmin = await Admin.find().exec();
-    await Promise.all(
-      listAdmin.map(async admin => {
-        const message = {
-          android: {
-            priority: "normal",
-            data: {
-              title: "New Domaine",
-              body: domaine
-            }
-          },
-          token: admin.token
         };
         try {
           await admin.messaging().send(message);
