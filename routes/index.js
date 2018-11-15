@@ -847,16 +847,18 @@ router.post("/SetProStatus", async (req, res) => {
     pro.isActive = req.body.isActive;
     await pro.save();
     //Ici pour recuperer le titre tu vas faire getNotification().getTitle() et .getBody() pour body
-    const message = {
-      android: {
-        priority: "normal",
-        data: {
-          title: "Activate Account",
-          body: "Your Account Have Been Activated"
-        }
-      },
-      token: pro.token
-    };
+    if (pro.isActive) {
+      const message = {
+        android: {
+          priority: "normal",
+          data: {
+            title: "Activate Account",
+            body: "Your Account Have Been Activated"
+          }
+        },
+        token: pro.token
+      };
+    }
     try {
       const reponse = await admin.messaging().send(message);
       console.log("reponse lors de l'envoi du message", reponse);
